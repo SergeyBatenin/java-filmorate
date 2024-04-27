@@ -9,6 +9,7 @@ import java.time.format.DateTimeFormatter;
 
 public class ReleaseDateValidator implements ConstraintValidator<FilmReleaseDate, LocalDate> {
     private String date;
+
     @Override
     public void initialize(FilmReleaseDate constraintAnnotation) {
         date = constraintAnnotation.date();
