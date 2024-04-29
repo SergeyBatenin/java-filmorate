@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -17,21 +18,31 @@ import java.util.Collection;
 @RestController
 @RequestMapping("/users")
 @RequiredArgsConstructor
+@Slf4j
 public class UserController {
     private final UserService userService;
 
     @GetMapping
     public Collection<User> getAll() {
-        return userService.getAll();
+        log.info("GET /users request");
+        Collection<User> users = userService.getAll();
+        log.info("GET /films response: {}", users.size());
+        return users;
     }
 
     @PostMapping
     public User create(@Validated @RequestBody User user) {
-        return userService.create(user);
+        log.info("POST /users request: {}", user);
+        User createdUser = userService.create(user);
+        log.info("POST /users response: {}", createdUser);
+        return createdUser;
     }
 
     @PutMapping
     public User update(@Validated @RequestBody User user) {
-        return userService.update(user);
+        log.info("PUT /users request: {}", user);
+        User updateUser = userService.update(user);
+        log.info("PUT /users response: {}", updateUser);
+        return updateUser;
     }
 }

@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,23 +19,33 @@ import java.util.Collection;
 @RequestMapping("/films")
 @Validated
 @RequiredArgsConstructor
+@Slf4j
 public class FilmController {
     private final FilmService filmService;
 
     @GetMapping
     public Collection<Film> getAll() {
-        return filmService.getAll();
+        log.info("GET /films request");
+        Collection<Film> films = filmService.getAll();
+        log.info("GET /films response: {}", films.size());
+        return films;
     }
 
 
     @PostMapping
     public Film create(@Validated @RequestBody Film film) {
-        return filmService.create(film);
+        log.info("POST /films request: {}", film);
+        Film createdFilm = filmService.create(film);
+        log.info("POST /films response: {}", createdFilm);
+        return createdFilm;
     }
 
     @ExceptionHandler
     @PutMapping
     public Film update(@Validated @RequestBody Film film) {
-        return filmService.update(film);
+        log.info("PUT /films request: {}", film);
+        Film updatedFilm = filmService.update(film);
+        log.info("PUT /films response: {}", updatedFilm);
+        return updatedFilm;
     }
 }
