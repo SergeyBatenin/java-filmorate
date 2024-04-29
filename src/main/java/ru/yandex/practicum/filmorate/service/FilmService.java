@@ -1,13 +1,17 @@
 package ru.yandex.practicum.filmorate.service;
 
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.repository.FilmRepository;
 
 import java.util.Collection;
 
+@Service
+@RequiredArgsConstructor
 public class FilmService {
-    private final FilmRepository repository = new FilmRepository();
+    private final FilmRepository repository;
 
     public Collection<Film> getAll() {
         return repository.getAll();
