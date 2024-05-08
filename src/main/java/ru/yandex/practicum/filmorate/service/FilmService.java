@@ -10,4 +10,10 @@ public interface FilmService {
     Film create(Film film);
 
     Film update(Film film);
+
+    void like(long filmId, long userId);
+
+    void unlike(long filmId, long userId);
+
+    Collection<Film> getMostPopular(int count);
 }
