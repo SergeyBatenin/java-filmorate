@@ -31,7 +31,7 @@ public class FilmServiceImpl implements FilmService {
     public Film update(Film film) {
         final Film updatedFilm = filmRepository.getById(film.getId())
                 .orElseThrow(() -> {
-                    log.warn("UPDATE {}. Фильм с id={} не найден", film, film.getId());
+                    log.debug("UPDATE {}. Фильм с id={} не найден", film, film.getId());
                     return new NotFoundException("Фильм с id=" + film.getId() + " не существует");
                 });
         return filmRepository.update(film);
@@ -41,12 +41,12 @@ public class FilmServiceImpl implements FilmService {
     public void like(long filmId, long userId) {
         userRepository.getById(userId)
                 .orElseThrow(() -> {
-                    log.warn("LIKE-FILM {}<-{}. Пользователь с id={} не найден", filmId, userId, userId);
+                    log.debug("LIKE-FILM {}<-{}. Пользователь с id={} не найден", filmId, userId, userId);
                     return new NotFoundException("Пользователь с id=" + userId + " не существует");
                 });
         filmRepository.getById(filmId)
                 .orElseThrow(() -> {
-                    log.warn("LIKE-FILM {}<-{}. Фильм с id={} не найден", filmId, userId, filmId);
+                    log.debug("LIKE-FILM {}<-{}. Фильм с id={} не найден", filmId, userId, filmId);
                     return new NotFoundException("Фильм с id=" + filmId + " не существует");
                 });
         filmRepository.like(filmId, userId);
@@ -56,12 +56,12 @@ public class FilmServiceImpl implements FilmService {
     public void unlike(long filmId, long userId) {
         userRepository.getById(userId)
                 .orElseThrow(() -> {
-                    log.warn("LIKE-FILM {}<-{}. Пользователь с id={} не найден", filmId, userId, userId);
+                    log.debug("LIKE-FILM {}<-{}. Пользователь с id={} не найден", filmId, userId, userId);
                     return new NotFoundException("Пользователь с id=" + userId + " не существует");
                 });
         filmRepository.getById(filmId)
                 .orElseThrow(() -> {
-                    log.warn("LIKE-FILM {}<-{}. Фильм с id={} не найден", filmId, userId, filmId);
+                    log.debug("LIKE-FILM {}<-{}. Фильм с id={} не найден", filmId, userId, filmId);
                     return new NotFoundException("Фильм с id=" + filmId + " не существует");
                 });
         filmRepository.unlike(filmId, userId);
