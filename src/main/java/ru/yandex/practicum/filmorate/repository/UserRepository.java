@@ -1,33 +1,24 @@
 package ru.yandex.practicum.filmorate.repository;
 
-import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Optional;
 
-@Repository
-public class UserRepository {
-    private static long identifierUser = 1;
-    private final Map<Long, User> users = new HashMap<>();
+public interface UserRepository {
+    User create(User user);
 
-    public User create(User user) {
-        user.setId(identifierUser++);
-        users.put(user.getId(), user);
-        return user;
-    }
+    User update(User user);
 
-    public User update(User user) {
-        users.put(user.getId(), user);
-        return user;
-    }
+    Collection<User> getAll();
 
-    public Collection<User> getAll() {
-        return users.values();
-    }
+    Optional<User> getById(Long id);
 
-    public User getById(Long id) {
-        return users.get(id);
-    }
+    void addFriend(long userId, long friendId);
+
+    void deleteFriend(long userId, long friendId);
+
+    Collection<User> getFriends(long userId);
+
+    Collection<User> getCommonFriends(long userId, long otherId);
 }
