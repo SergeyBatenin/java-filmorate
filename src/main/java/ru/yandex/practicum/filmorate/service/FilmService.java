@@ -16,4 +16,6 @@ public interface FilmService {
     void unlike(long filmId, long userId);
 
     Collection<Film> getMostPopular(int count);
+
+    Film getById(long filmId);
 }

@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.repository;
+package ru.yandex.practicum.filmorate.repository.film;
 
 import ru.yandex.practicum.filmorate.model.Film;
 
@@ -13,10 +13,6 @@ public interface FilmRepository {
     Collection<Film> getAll();
 
     Optional<Film> getById(Long id);
-
-    void like(long filmId, long userId);
-
-    void unlike(long filmId, long userId);
 
     Collection<Film> getMostPopular(int count);
 }
