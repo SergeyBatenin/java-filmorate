@@ -25,6 +25,7 @@ public class FilmMapper implements RowMapper<Film> {
                 .duration(rs.getInt("DURATION"))
                 .mpa(mpa)
                 .genres(new LinkedHashSet<>())
+                .director(new LinkedHashSet<>())
                 .build();
     }
 }

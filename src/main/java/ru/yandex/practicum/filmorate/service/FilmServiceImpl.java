@@ -8,6 +8,7 @@ import ru.yandex.practicum.filmorate.exception.MpaNotExistsException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
+import ru.yandex.practicum.filmorate.repository.director.DirectorRepository;
 import ru.yandex.practicum.filmorate.repository.film.FilmRepository;
 import ru.yandex.practicum.filmorate.repository.genre.GenreRepository;
 import ru.yandex.practicum.filmorate.repository.like.LikeRepository;
@@ -26,10 +27,21 @@ public class FilmServiceImpl implements FilmService {
     private final MpaRepository mpaRepository;
     private final GenreRepository genreRepository;
     private final LikeRepository likeRepository;
+    private final DirectorRepository directorRepository;
 
     @Override
     public Collection<Film> getAll() {
         return filmRepository.getAll();
+    }
+
+    @Override
+    public Collection<Film> getByDirector(int directorId, String sortBy) {
+        directorRepository.getById(directorId)
+                .orElseThrow(() -> {
+                    log.debug("GET DIRECTOR By ID {}. Режиссер с айди {} не найден", directorId, directorId);
+                    return new NotFoundException("Режиссер с id=" + directorId + " не существует");
+                });
+        return filmRepository.getByDirector(directorId, sortBy);
     }
 
     @Override

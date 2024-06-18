@@ -1,8 +1,10 @@
+drop table if exists FILMS_DIRECTORS CASCADE;
 drop table if exists FILMS_GENRES CASCADE;
 drop table if exists FRIENDSHIP CASCADE;
 drop table if exists LIKES CASCADE;
 drop table if exists MPA CASCADE;
 drop table if exists GENRES CASCADE;
+drop table if exists DIRECTORS CASCADE;
 drop table if exists FILMS CASCADE;
 drop table if exists USERS CASCADE;
 drop table if exists REVIEW_LIKES CASCADE;
