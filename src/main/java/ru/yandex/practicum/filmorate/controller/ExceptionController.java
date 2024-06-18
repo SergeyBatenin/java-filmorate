@@ -7,7 +7,10 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import ru.yandex.practicum.filmorate.exception.ErrorMessage;
+import ru.yandex.practicum.filmorate.exception.GenreNotExistsException;
+import ru.yandex.practicum.filmorate.exception.MpaNotExistsException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
+import ru.yandex.practicum.filmorate.exception.SaveDataException;
 
 @Slf4j
 @RestControllerAdvice
@@ -25,6 +28,30 @@ public class ExceptionController {
         log.error("ERROR", exception);
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
+                .body(new ErrorMessage(exception.getMessage()));
+    }
+
+    @ExceptionHandler(MpaNotExistsException.class)
+    public ResponseEntity<ErrorMessage> handleMpaNotExists(MpaNotExistsException exception) {
+        log.error("ERROR", exception);
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(new ErrorMessage(exception.getMessage()));
+    }
+
+    @ExceptionHandler(GenreNotExistsException.class)
+    public ResponseEntity<ErrorMessage> handleGenreNotExists(GenreNotExistsException exception) {
+        log.error("ERROR", exception);
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(new ErrorMessage(exception.getMessage()));
+    }
+
+    @ExceptionHandler(SaveDataException.class)
+    public ResponseEntity<ErrorMessage> handleSaveData(SaveDataException exception) {
+        log.error("ERROR", exception);
+        return ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(new ErrorMessage(exception.getMessage()));
     }
 

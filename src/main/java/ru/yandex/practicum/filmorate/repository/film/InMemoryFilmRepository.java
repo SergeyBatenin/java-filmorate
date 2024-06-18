@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.repository;
+package ru.yandex.practicum.filmorate.repository.film;
 
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.model.Film;
@@ -40,13 +40,11 @@ public class InMemoryFilmRepository implements FilmRepository {
         return Optional.ofNullable(films.get(id));
     }
 
-    @Override
     public void like(long filmId, long userId) {
         Set<Long> filmLikes = likes.computeIfAbsent(filmId, id -> new HashSet<>());
         filmLikes.add(userId);
     }
 
-    @Override
     public void unlike(long filmId, long userId) {
         Set<Long> filmLikes = likes.computeIfAbsent(filmId, id -> new HashSet<>());
         filmLikes.remove(userId);

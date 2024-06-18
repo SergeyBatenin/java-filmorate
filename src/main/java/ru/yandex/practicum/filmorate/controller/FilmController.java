@@ -33,6 +33,14 @@ public class FilmController {
         return films;
     }
 
+    @GetMapping("/{filmId}")
+    public Film getById(@PathVariable long filmId) {
+        log.info("GET /films{} request", filmId);
+        Film film = filmService.getById(filmId);
+        log.info("GET /films{} response: {}", filmId, film);
+        return film;
+    }
+
 
     @PostMapping
     public Film create(@Validated @RequestBody Film film) {
