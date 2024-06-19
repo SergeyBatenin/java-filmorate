@@ -172,7 +172,7 @@ public class JdbcFilmRepository extends BaseJdbcRepository<Film> implements Film
     @Override
     public void delete(Long id) {
         String deleteFilmQuery = "DELETE FROM FILMS WHERE FILM_ID = :filmId;";
-        jdbc.update(deleteFilmQuery,Map.of("filmId",id));
+        jdbc.update(deleteFilmQuery, Map.of("filmId", id));
     }
 
     @Override
@@ -191,7 +191,7 @@ public class JdbcFilmRepository extends BaseJdbcRepository<Film> implements Film
                 LEFT JOIN LIKES L ON L.FILM_ID = F.FILM_ID
                 JOIN MPA M ON M.MPA_ID = F.MPA_ID
                 GROUP BY F.FILM_ID
-                ORDER BY total DESC
+                ORDER BY total DESC, F.FILM_ID
                 LIMIT :count;
                 """;
         List<Film> films = jdbc.query(sqlQuery, Map.of("count", count), mapper);

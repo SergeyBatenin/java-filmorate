@@ -44,11 +44,6 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void delete(Long userId) {
-        repository.getById(userId)
-                .orElseThrow(() -> {
-                    log.debug("DELETE USER BY ID: {}. Пользователь с айди {} не найден", userId, userId);
-                    return new NotFoundException("Пользователь с id=" + userId + " не существует");
-                });
         repository.delete(userId);
     }
 
