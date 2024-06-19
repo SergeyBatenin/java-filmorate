@@ -40,6 +40,11 @@ public class InMemoryUserRepository implements UserRepository {
     }
 
     @Override
+    public void delete(long userId) {
+
+    }
+
+    @Override
     public void addFriend(long userId, long friendId) {
         final Set<Long> userFriendIds = friends.computeIfAbsent(userId, id -> new HashSet<>());
         final Set<Long> friendFriendIds = friends.computeIfAbsent(friendId, id -> new HashSet<>());

@@ -92,6 +92,12 @@ public class JdbcUserRepository extends BaseJdbcRepository<User> implements User
     }
 
     @Override
+    public void delete(long userId) {
+        String deleteUserQuery = "DELETE FROM USERS WHERE USER_ID = :userId;";
+        jdbc.update(deleteUserQuery, Map.of("userId", userId));
+    }
+
+    @Override
     public void addFriend(long userId, long friendId) {
         String sqlQuery = """
                 INSERT INTO FRIENDSHIP (USER_ID, FRIEND_ID, IS_MUTUAL)
