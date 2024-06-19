@@ -15,4 +15,6 @@ public interface FilmRepository {
     Optional<Film> getById(Long id);
 
     Collection<Film> getMostPopular(int count);
+
+    Collection<Film> getCommonFilms(long userId, long friendId);
 }
