@@ -171,7 +171,7 @@ public class JdbcFilmRepository extends BaseJdbcRepository<Film> implements Film
 
     @Override
     public void delete(Long id) {
-        String deleteFilmQuery = "DELETE FROM FILMS WHERE WHERE FILM_ID = :filmId;";
+        String deleteFilmQuery = "DELETE FROM FILMS WHERE FILM_ID = :filmId;";
         jdbc.update(deleteFilmQuery,Map.of("filmId",id));
     }
 
