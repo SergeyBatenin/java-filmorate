@@ -33,9 +33,9 @@ public class UserController {
     }
 
     @GetMapping("/{userId}")
-    public User get(@PathVariable Long userId) {
+    public User getById(@PathVariable Long userId) {
         log.info("GET /users/{} by ID {} request", userId, userId);
-        User user = userService.get(userId);
+        User user = userService.getById(userId);
         log.info("GET /users/{} response: success {}", userId, user);
         return user;
     }
