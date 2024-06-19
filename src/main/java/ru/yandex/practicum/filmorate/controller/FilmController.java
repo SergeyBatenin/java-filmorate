@@ -82,9 +82,9 @@ public class FilmController {
 
     @GetMapping("/common")
     public Collection<Film> getCommonFilms(@RequestParam long userId, @RequestParam long friendId) {
-        log.info("GET /films/common?userId={}, friendId={}", userId, friendId);
+        log.info("GET /films/common?userId={}, friendId={} request", userId, friendId);
         Collection<Film> films = filmService.getCommonFilms(userId, friendId);
-        log.info("GET /films/common?userId={}, friendId={}", userId, friendId);
+        log.info("GET /films/common?userId={}, friendId={} response", userId, friendId);
         return films;
     }
 }
