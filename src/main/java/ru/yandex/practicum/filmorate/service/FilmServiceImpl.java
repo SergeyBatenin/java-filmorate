@@ -65,12 +65,6 @@ public class FilmServiceImpl implements FilmService {
 
     @Override
     public void delete(long filmId) {
-        filmRepository.getById(filmId)
-                .orElseThrow(() -> {
-                    log.debug("DELETE FILM BY ID: {}. Фильм с id={} не найден", filmId, filmId);
-                    return new NotFoundException("Фильм с id=" + filmId + " не существует");
-                });
-
         filmRepository.delete(filmId);
     }
 
