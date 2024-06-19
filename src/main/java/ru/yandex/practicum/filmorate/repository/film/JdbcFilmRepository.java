@@ -188,10 +188,10 @@ public class JdbcFilmRepository extends BaseJdbcRepository<Film> implements Film
                     M.NAME as MPA_NAME,
                     COUNT(*) as total
                 FROM FILMS F
-                JOIN LIKES L ON L.FILM_ID = F.FILM_ID
+                LEFT JOIN LIKES L ON L.FILM_ID = F.FILM_ID
                 JOIN MPA M ON M.MPA_ID = F.MPA_ID
                 GROUP BY F.FILM_ID
-                ORDER BY total DESC, F.FILM_ID
+                ORDER BY total DESC
                 LIMIT :count;
                 """;
         List<Film> films = jdbc.query(sqlQuery, Map.of("count", count), mapper);
