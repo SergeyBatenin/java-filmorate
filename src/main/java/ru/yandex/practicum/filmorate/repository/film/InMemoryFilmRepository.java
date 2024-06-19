@@ -41,6 +41,11 @@ public class InMemoryFilmRepository implements FilmRepository {
         return Optional.ofNullable(films.get(id));
     }
 
+    @Override
+    public void delete(Long id) {
+
+    }
+
     public void like(long filmId, long userId) {
         Set<Long> filmLikes = likes.computeIfAbsent(filmId, id -> new HashSet<>());
         filmLikes.add(userId);

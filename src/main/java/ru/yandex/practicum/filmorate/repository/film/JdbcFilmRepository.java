@@ -152,14 +152,6 @@ public class JdbcFilmRepository extends BaseJdbcRepository<Film> implements Film
             Film film = jdbc.queryForObject(sqlQuery, Map.of("filmId", id), mapper);
             Objects.requireNonNull(film);
 
-            // какой вариант запроса считается более желательным?
-            // Как будто при джойне объем данных будет больше для обработки
-//            String getFilmGenresQuery = """
-//                    SELECT G.GENRE_ID, G.NAME
-//                    FROM FILMS_GENRES FG
-//                    JOIN GENRES G ON G.GENRE_ID = FG.GENRE_ID
-//                    WHERE FILM_ID = :filmId;
-//                    """;
             String getFilmGenresQuery = """
                     SELECT GENRE_ID, NAME
                         FROM GENRES
@@ -175,6 +167,12 @@ public class JdbcFilmRepository extends BaseJdbcRepository<Film> implements Film
         } catch (NullPointerException | EmptyResultDataAccessException ignored) {
             return Optional.empty();
         }
+    }
+
+    @Override
+    public void delete(Long id) {
+        String deleteFilmQuery = "DELETE FROM FILMS WHERE WHERE FILM_ID = :filmId;";
+        jdbc.update(deleteFilmQuery,Map.of("filmId",id));
     }
 
     @Override
