@@ -63,6 +63,11 @@ public class FilmServiceImpl implements FilmService {
         return filmRepository.update(film);
     }
 
+    @Override
+    public void delete(long filmId) {
+        filmRepository.delete(filmId);
+    }
+
     private void checkFilmMpa(Film film) {
         int mapId = film.getMpa().getId();
         mpaRepository.getById(mapId)

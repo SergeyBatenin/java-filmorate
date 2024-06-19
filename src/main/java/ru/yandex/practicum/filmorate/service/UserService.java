@@ -7,9 +7,13 @@ import java.util.Collection;
 public interface UserService {
     Collection<User> getAll();
 
+    User getById(long userId);
+
     User create(User user);
 
     User update(User user);
+
+    void delete(Long userId);
 
     void addFriend(long userId, long friendId);
 

@@ -11,6 +11,8 @@ public interface FilmService {
 
     Film update(Film film);
 
+    void delete(long filmId);
+
     void like(long filmId, long userId);
 
     void unlike(long filmId, long userId);

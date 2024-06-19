@@ -21,10 +21,14 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public User getById(long userId) {
+        return repository.getById(userId).orElseThrow(() -> new NotFoundException("Пользователь с id " + userId + " не найден."));
+    }
+
+    @Override
     public User create(User user) {
         checkAndInitializeUserName(user);
-        final User createdUser = repository.create(user);
-        return createdUser;
+        return repository.create(user);
     }
 
     @Override
@@ -36,6 +40,11 @@ public class UserServiceImpl implements UserService {
                 });
         checkAndInitializeUserName(user);
         return repository.update(user);
+    }
+
+    @Override
+    public void delete(Long userId) {
+        repository.delete(userId);
     }
 
     @Override

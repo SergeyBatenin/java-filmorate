@@ -152,14 +152,6 @@ public class JdbcFilmRepository extends BaseJdbcRepository<Film> implements Film
             Film film = jdbc.queryForObject(sqlQuery, Map.of("filmId", id), mapper);
             Objects.requireNonNull(film);
 
-            // какой вариант запроса считается более желательным?
-            // Как будто при джойне объем данных будет больше для обработки
-//            String getFilmGenresQuery = """
-//                    SELECT G.GENRE_ID, G.NAME
-//                    FROM FILMS_GENRES FG
-//                    JOIN GENRES G ON G.GENRE_ID = FG.GENRE_ID
-//                    WHERE FILM_ID = :filmId;
-//                    """;
             String getFilmGenresQuery = """
                     SELECT GENRE_ID, NAME
                         FROM GENRES
@@ -178,6 +170,12 @@ public class JdbcFilmRepository extends BaseJdbcRepository<Film> implements Film
     }
 
     @Override
+    public void delete(Long id) {
+        String deleteFilmQuery = "DELETE FROM FILMS WHERE FILM_ID = :filmId;";
+        jdbc.update(deleteFilmQuery, Map.of("filmId", id));
+    }
+
+    @Override
     public Collection<Film> getMostPopular(int count) {
         String sqlQuery = """
                 SELECT
@@ -190,7 +188,7 @@ public class JdbcFilmRepository extends BaseJdbcRepository<Film> implements Film
                     M.NAME as MPA_NAME,
                     COUNT(*) as total
                 FROM FILMS F
-                JOIN LIKES L ON L.FILM_ID = F.FILM_ID
+                LEFT JOIN LIKES L ON L.FILM_ID = F.FILM_ID
                 JOIN MPA M ON M.MPA_ID = F.MPA_ID
                 GROUP BY F.FILM_ID
                 ORDER BY total DESC, F.FILM_ID

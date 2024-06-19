@@ -28,8 +28,16 @@ public class UserController {
     public Collection<User> getAll() {
         log.info("GET /users request");
         Collection<User> users = userService.getAll();
-        log.info("GET /films response: {}", users.size());
+        log.info("GET /users response: {}", users.size());
         return users;
+    }
+
+    @GetMapping("/{userId}")
+    public User getById(@PathVariable Long userId) {
+        log.info("GET /users/{} by ID {} request", userId, userId);
+        User user = userService.getById(userId);
+        log.info("GET /users/{} response: success {}", userId, user);
+        return user;
     }
 
     @PostMapping
@@ -46,6 +54,13 @@ public class UserController {
         User updateUser = userService.update(user);
         log.info("PUT /users response: {}", updateUser);
         return updateUser;
+    }
+
+    @DeleteMapping("/{id}")
+    public void delete(@PathVariable long id) {
+        log.info("DELETE /users/{} request", id);
+        userService.delete(id);
+        log.info("DELETE /users/{} response: success", id);
     }
 
     @PutMapping("/{id}/friends/{friendId}")
