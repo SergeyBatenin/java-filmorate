@@ -32,6 +32,14 @@ public class UserController {
         return users;
     }
 
+    @GetMapping("/{id}")
+    public User get(@PathVariable Long userId) {
+        log.info("GET /users/{} by ID {} request", userId, userId);
+        User user = userService.get(userId);
+        log.info("GET /films response: {}", user);
+        return user;
+    }
+
     @PostMapping
     public User create(@Validated @RequestBody User user) {
         log.info("POST /users request: {}", user);

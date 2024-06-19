@@ -21,6 +21,11 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public User get(long userId) {
+        return repository.getById(userId).orElseThrow(() -> new NotFoundException("Пользователь с id " + userId + " не найден."));
+    }
+
+    @Override
     public User create(User user) {
         checkAndInitializeUserName(user);
         final User createdUser = repository.create(user);
