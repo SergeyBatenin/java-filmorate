@@ -28,15 +28,15 @@ public class UserController {
     public Collection<User> getAll() {
         log.info("GET /users request");
         Collection<User> users = userService.getAll();
-        log.info("GET /films response: {}", users.size());
+        log.info("GET /users response: {}", users.size());
         return users;
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/{userId}")
     public User get(@PathVariable Long userId) {
         log.info("GET /users/{} by ID {} request", userId, userId);
         User user = userService.get(userId);
-        log.info("GET /films response: {}", user);
+        log.info("GET /users/{} response: success {}", userId, user);
         return user;
     }
 
