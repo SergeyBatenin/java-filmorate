@@ -1,7 +1,10 @@
 package ru.yandex.practicum.filmorate.repository.film;
 
+import lombok.NonNull;
 import org.springframework.context.annotation.Primary;
+import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
@@ -18,6 +21,8 @@ import ru.yandex.practicum.filmorate.repository.director.DirectorMapper;
 import ru.yandex.practicum.filmorate.repository.genre.GenreMapper;
 import ru.yandex.practicum.filmorate.repository.mpa.MpaMapper;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -128,10 +133,6 @@ public class JdbcFilmRepository extends BaseJdbcRepository<Film> implements Film
 
     @Override
     public Collection<Film> getAll() {
-        // получить все жанры
-        Map<Integer, Genre> genres = getIdsGenresMap();
-        // получить всех режиссеров
-        Map<Integer, Director> directors = getIdsDirectorsMap();
         // получить фильмы
         String getFilmsQuery = """
                 SELECT F.FilM_ID, F.NAME, F.DESCRIPTION, F.RELEASE_DATE, F.DURATION, F.MPA_ID, M.NAME as MPA_NAME
@@ -143,26 +144,9 @@ public class JdbcFilmRepository extends BaseJdbcRepository<Film> implements Film
         if (films.isEmpty()) {
             return Collections.emptyList();
         }
-        // получить фильмы-жанры
-        jdbc.query("SELECT * FROM FILMS_GENRES;", (rs, intRow) -> {
-            Film film = null;
-            while (rs.next()) {
-                film = films.get(rs.getLong("FILM_ID"));
-                Genre genre = genres.get(rs.getInt("GENRE_ID"));
-                film.getGenres().add(genre);
-            }
-            return film;
-        });
-        // получить режиссеров фильмов
-        jdbc.query("SELECT * FROM FILMS_DIRECTORS;", (rs, intRow) -> {
-            Film film = null;
-            while (rs.next()) {
-                film = films.get(rs.getLong("FILM_ID"));
-                Director director = directors.get(rs.getInt("DIRECTOR_ID"));
-                film.getDirectors().add(director);
-            }
-            return film;
-        });
+
+        initializeGenresAndDirectors(films);
+
         return films.values();
     }
 
@@ -183,78 +167,97 @@ public class JdbcFilmRepository extends BaseJdbcRepository<Film> implements Film
 
     @Override
     public Collection<Film> getByDirector(int directorId, String sortBy) {
-        String sql = generateQueryGetFilmsBySort(sortBy);
-        Map<Long, Film> films = jdbc.query(sql, Map.of("directorId", directorId), mapper).stream()
-                .collect(Collectors.toMap(Film::getId, Function.identity()));
-        if (films.isEmpty()) {
-            return Collections.emptyList();
+        Map<Long, Film> films;
+        if ("year".equals(sortBy)) {
+            films = getByYear(directorId);
+        } else {
+            films = getByLikes(directorId);
         }
+
+        initializeGenresAndDirectors(films);
+
+        return films.values();
+    }
+
+    private void initializeGenresAndDirectors(Map<Long, Film> films) {
         // получить все жанры
         Map<Integer, Genre> genres = getIdsGenresMap();
         // получить всех режиссеров
         Map<Integer, Director> directors = getIdsDirectorsMap();
         // получить фильмы-жанры
-        jdbc.query("SELECT * FROM FILMS_GENRES;", (rs, intRow) -> {
-            Film film = null;
-            while (rs.next()) {
-                film = films.get(rs.getLong("FILM_ID"));
-                Genre genre = genres.get(rs.getInt("GENRE_ID"));
-                film.getGenres().add(genre);
+        jdbc.query("SELECT * FROM FILMS_GENRES;", new ResultSetExtractor<Film>() {
+            @Override
+            public Film extractData(@NonNull ResultSet rs) throws SQLException, DataAccessException {
+
+                Film film = null;
+                while (rs.next()) {
+                    film = films.get(rs.getLong("FILM_ID"));
+                    if (film != null) {
+                        Genre genre = genres.get(rs.getInt("GENRE_ID"));
+                        film.getGenres().add(genre);
+                    }
+                }
+                return film;
             }
-            return film;
         });
         // получить режиссеров фильмов
-        jdbc.query("SELECT * FROM FILMS_DIRECTORS;", (rs, intRow) -> {
-            Film film = null;
-            while (rs.next()) {
-                film = films.get(rs.getLong("FILM_ID"));
-                Director director = directors.get(rs.getInt("DIRECTOR_ID"));
-                film.getDirectors().add(director);
-            }
-            return film;
-        });
+        jdbc.query("SELECT * FROM FILMS_DIRECTORS;", new ResultSetExtractor<Film>() {
+            @Override
+            public Film extractData(@NonNull ResultSet rs) throws SQLException, DataAccessException {
 
-        return films.values();
+                Film film = null;
+                while (rs.next()) {
+                    film = films.get(rs.getLong("FILM_ID"));
+                    if (film != null) {
+                        Director director = directors.get(rs.getInt("DIRECTOR_ID"));
+                        film.getDirectors().add(director);
+                    }
+                }
+                return film;
+            }
+        });
     }
 
-    private String generateQueryGetFilmsBySort(String sortBy) {
-        String query;
-        if ("year".equals(sortBy)) {
-            query = """
-                    SELECT
-                        F.FILM_ID,
-                        F.NAME,
-                        F.DESCRIPTION,
-                        F.RELEASE_DATE,
-                        F.DURATION,
-                        M.MPA_ID,
-                        M.NAME as MPA_NAME
-                    FROM FILMS F
-                    JOIN MPA M ON M.MPA_ID = F.MPA_ID
-                    JOIN FILMS_DIRECTORS FD ON FD.FILM_ID = F.FILM_ID
-                    WHERE FD.DIRECTOR_ID = :directorId
-                    GROUP BY F.FILM_ID
-                    ORDER BY F.RELEASE_DATE""";
-        } else {
-            query = """
-                    SELECT
-                        F.FILM_ID,
-                        F.NAME,
-                        F.DESCRIPTION,
-                        F.RELEASE_DATE,
-                        F.DURATION,
-                        M.MPA_ID,
-                        M.NAME as MPA_NAME,
-                        COUNT(*) as film_likes
-                    FROM FILMS F
-                    JOIN MPA M ON M.MPA_ID = F.MPA_ID
-                    JOIN FILMS_DIRECTORS FD ON FD.FILM_ID = F.FILM_ID
-                    JOIN LIKES L ON L.FILM_ID = F.FILM_ID
-                    WHERE FD.DIRECTOR_ID = :directorId
-                    GROUP BY F.FILM_ID
-                    ORDER BY film_likes""";
-        }
-        return query;
+    private Map<Long, Film> getByYear(int directorId) {
+        String getFilmsByYear = """
+                SELECT
+                    F.FILM_ID,
+                    F.NAME,
+                    F.DESCRIPTION,
+                    F.RELEASE_DATE,
+                    F.DURATION,
+                    M.MPA_ID,
+                    M.NAME as MPA_NAME
+                FROM FILMS F
+                JOIN MPA M ON M.MPA_ID = F.MPA_ID
+                JOIN FILMS_DIRECTORS FD ON FD.FILM_ID = F.FILM_ID
+                WHERE FD.DIRECTOR_ID = :directorId
+                GROUP BY F.FILM_ID
+                ORDER BY F.RELEASE_DATE""";
+        return jdbc.query(getFilmsByYear, Map.of("directorId", directorId), mapper).stream()
+                .collect(Collectors.toMap(Film::getId, Function.identity()));
+    }
+
+    private Map<Long, Film> getByLikes(int directorId) {
+        String getFilmsByLikes = """
+                SELECT
+                    F.FILM_ID,
+                    F.NAME,
+                    F.DESCRIPTION,
+                    F.RELEASE_DATE,
+                    F.DURATION,
+                    M.MPA_ID,
+                    M.NAME as MPA_NAME,
+                    COUNT(*) as film_likes
+                FROM FILMS F
+                JOIN MPA M ON M.MPA_ID = F.MPA_ID
+                JOIN FILMS_DIRECTORS FD ON FD.FILM_ID = F.FILM_ID
+                JOIN LIKES L ON L.FILM_ID = F.FILM_ID
+                WHERE FD.DIRECTOR_ID = :directorId
+                GROUP BY F.FILM_ID
+                ORDER BY film_likes""";
+        return jdbc.query(getFilmsByLikes, Map.of("directorId", directorId), mapper).stream()
+                .collect(Collectors.toMap(Film::getId, Function.identity()));
     }
 
     @Override
