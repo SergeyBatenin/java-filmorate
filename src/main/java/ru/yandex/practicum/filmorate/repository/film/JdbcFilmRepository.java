@@ -159,7 +159,7 @@ public class JdbcFilmRepository extends BaseJdbcRepository<Film> implements Film
                                     SELECT GENRE_ID
                                     FROM FILMS_GENRES
                                     WHERE FILM_ID = :filmId);
-                        """;
+                    """;
             List<Genre> filmGenres = jdbc.query(getFilmGenresQuery, Map.of("filmId", id), new GenreMapper());
             film.getGenres().addAll(filmGenres);
 
@@ -218,7 +218,15 @@ public class JdbcFilmRepository extends BaseJdbcRepository<Film> implements Film
     @Override
     public Collection<Film> getCommonFilms(long userId, long friendId) {
         String sqlQuery = """
-                SELECT F.FilM_ID, F.NAME, F.DESCRIPTION, F.RELEASE_DATE, F.DURATION, F.MPA_ID, M.NAME as MPA_NAME, COUNT(L_ALL.USER_ID) as LIKES
+                SELECT
+                    F.FilM_ID,
+                    F.NAME,
+                    F.DESCRIPTION,
+                    F.RELEASE_DATE,
+                    F.DURATION,
+                    F.MPA_ID,
+                    M.NAME as MPA_NAME,
+                    COUNT(L_ALL.USER_ID) as LIKES
                 FROM FILMS F
                 JOIN LIKES L1 ON L1.FILM_ID = F.FILM_ID
                 JOIN LIKES L2 ON L2.FILM_ID = F.FILM_ID
@@ -229,12 +237,12 @@ public class JdbcFilmRepository extends BaseJdbcRepository<Film> implements Film
                 ORDER BY LIKES DESC, F.FILM_ID;
                 """;
 
-        MapSqlParameterSource params = new MapSqlParameterSource();
-        params.addValue("userId", userId);
-        params.addValue("friendId", friendId);
+        MapSqlParameterSource params = new MapSqlParameterSource()
+                .addValue("userId", userId)
+                .addValue("friendId", friendId);
 
-        List<Film> films = jdbc.query(sqlQuery, params, mapper);
-        Map<Long, Film> filmMap = films.stream().collect(Collectors.toMap(Film::getId, Function.identity()));
+        Map<Long, Film> filmMap = jdbc.query(sqlQuery, params, mapper).stream()
+                .collect(Collectors.toMap(Film::getId, Function.identity()));
         Map<Integer, Genre> genres = getIdsGenresMap();
 
         jdbc.query("SELECT * FROM FILMS_GENRES WHERE FILM_ID IN (:filmIds);",
@@ -246,6 +254,6 @@ public class JdbcFilmRepository extends BaseJdbcRepository<Film> implements Film
                     return film;
                 });
 
-        return films;
+        return filmMap.values();
     }
 }
