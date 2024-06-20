@@ -20,7 +20,6 @@ import ru.yandex.practicum.filmorate.repository.mpa.MpaMapper;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -222,38 +221,38 @@ public class JdbcFilmRepository extends BaseJdbcRepository<Film> implements Film
         String query;
         if ("year".equals(sortBy)) {
             query = """
-                SELECT
-                    F.FILM_ID,
-                    F.NAME,
-                    F.DESCRIPTION,
-                    F.RELEASE_DATE,
-                    F.DURATION,
-                    M.MPA_ID,
-                    M.NAME as MPA_NAME
-                FROM FILMS F
-                JOIN MPA M ON M.MPA_ID = F.MPA_ID
-                JOIN FILMS_DIRECTORS FD ON FD.FILM_ID = F.FILM_ID
-                WHERE FD.DIRECTOR_ID = :directorId
-                GROUP BY F.FILM_ID
-                ORDER BY F.RELEASE_DATE""";
+                    SELECT
+                        F.FILM_ID,
+                        F.NAME,
+                        F.DESCRIPTION,
+                        F.RELEASE_DATE,
+                        F.DURATION,
+                        M.MPA_ID,
+                        M.NAME as MPA_NAME
+                    FROM FILMS F
+                    JOIN MPA M ON M.MPA_ID = F.MPA_ID
+                    JOIN FILMS_DIRECTORS FD ON FD.FILM_ID = F.FILM_ID
+                    WHERE FD.DIRECTOR_ID = :directorId
+                    GROUP BY F.FILM_ID
+                    ORDER BY F.RELEASE_DATE""";
         } else {
             query = """
-                SELECT
-                    F.FILM_ID,
-                    F.NAME,
-                    F.DESCRIPTION,
-                    F.RELEASE_DATE,
-                    F.DURATION,
-                    M.MPA_ID,
-                    M.NAME as MPA_NAME,
-                    COUNT(*) as film_likes
-                FROM FILMS F
-                JOIN MPA M ON M.MPA_ID = F.MPA_ID
-                JOIN FILMS_DIRECTORS FD ON FD.FILM_ID = F.FILM_ID
-                JOIN LIKES L ON L.FILM_ID = F.FILM_ID
-                WHERE FD.DIRECTOR_ID = :directorId
-                GROUP BY F.FILM_ID
-                ORDER BY film_likes""";
+                    SELECT
+                        F.FILM_ID,
+                        F.NAME,
+                        F.DESCRIPTION,
+                        F.RELEASE_DATE,
+                        F.DURATION,
+                        M.MPA_ID,
+                        M.NAME as MPA_NAME,
+                        COUNT(*) as film_likes
+                    FROM FILMS F
+                    JOIN MPA M ON M.MPA_ID = F.MPA_ID
+                    JOIN FILMS_DIRECTORS FD ON FD.FILM_ID = F.FILM_ID
+                    JOIN LIKES L ON L.FILM_ID = F.FILM_ID
+                    WHERE FD.DIRECTOR_ID = :directorId
+                    GROUP BY F.FILM_ID
+                    ORDER BY film_likes""";
         }
         return query;
     }
@@ -269,7 +268,7 @@ public class JdbcFilmRepository extends BaseJdbcRepository<Film> implements Film
                     """;
             Film film = jdbc.queryForObject(sqlQuery, Map.of("filmId", id), mapper);
             Objects.requireNonNull(film);
-            
+
             String getFilmGenresQuery = """
                     SELECT G.GENRE_ID, G.NAME
                     FROM FILMS_GENRES FG
