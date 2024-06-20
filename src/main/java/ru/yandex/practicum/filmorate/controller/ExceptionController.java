@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import ru.yandex.practicum.filmorate.exception.DirectorNotExistsException;
 import ru.yandex.practicum.filmorate.exception.ErrorMessage;
 import ru.yandex.practicum.filmorate.exception.GenreNotExistsException;
 import ru.yandex.practicum.filmorate.exception.MpaNotExistsException;
@@ -41,6 +42,14 @@ public class ExceptionController {
 
     @ExceptionHandler(GenreNotExistsException.class)
     public ResponseEntity<ErrorMessage> handleGenreNotExists(GenreNotExistsException exception) {
+        log.error("ERROR", exception);
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(new ErrorMessage(exception.getMessage()));
+    }
+
+    @ExceptionHandler(DirectorNotExistsException.class)
+    public ResponseEntity<ErrorMessage> handleDirectorNotExists(DirectorNotExistsException exception) {
         log.error("ERROR", exception);
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)

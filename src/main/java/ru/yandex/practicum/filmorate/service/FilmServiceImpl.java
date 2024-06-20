@@ -3,9 +3,11 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.exception.DirectorNotExistsException;
 import ru.yandex.practicum.filmorate.exception.GenreNotExistsException;
 import ru.yandex.practicum.filmorate.exception.MpaNotExistsException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
+import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.repository.director.DirectorRepository;
@@ -57,6 +59,7 @@ public class FilmServiceImpl implements FilmService {
     public Film create(Film film) {
         checkFilmMpa(film);
         checkFilmGenres(film);
+        checkFilmDirectors(film);
 
         return filmRepository.create(film);
     }
@@ -70,6 +73,7 @@ public class FilmServiceImpl implements FilmService {
                 });
         checkFilmMpa(film);
         checkFilmGenres(film);
+        checkFilmDirectors(film);
 
         return filmRepository.update(film);
     }
@@ -99,6 +103,20 @@ public class FilmServiceImpl implements FilmService {
         if (!isContains) {
             log.debug("CHECK FilmGenres {}. Обнаружен несуществующий жанр в списке {}", film, allGenres);
             throw new GenreNotExistsException("Фильм содержит не существующий жанр");
+        }
+    }
+
+    private void checkFilmDirectors(Film film) {
+        Set<Director> directors = film.getDirectors();
+        if (directors == null || directors.isEmpty()) {
+            return;
+        }
+
+        Collection<Director> allDirectors = directorRepository.getAll();
+        boolean isContains = allDirectors.containsAll(directors);
+        if (!isContains) {
+            log.debug("CHECK FilmDirectors {}. Обнаружен несуществующий режиссер в списке {}", film, allDirectors);
+            throw new DirectorNotExistsException("Фильм содержит не существующего режиссера");
         }
     }
 
