@@ -20,6 +20,7 @@ import ru.yandex.practicum.filmorate.repository.mpa.MpaMapper;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -93,7 +94,6 @@ public class JdbcFilmRepository extends BaseJdbcRepository<Film> implements Film
 
         insertFilmGenres(film);
         insertFilmDirectors(film);
-
         return film;
     }
 
@@ -102,7 +102,6 @@ public class JdbcFilmRepository extends BaseJdbcRepository<Film> implements Film
         if (genres == null || genres.isEmpty()) {
             return;
         }
-
         String insertFilmGenresQuery = "INSERT INTO FILMS_GENRES (FILM_ID, GENRE_ID) VALUES (:filmId, :genreId);";
         List<MapSqlParameterSource> genreParams = genres.stream()
                 .map(genre -> new MapSqlParameterSource()
@@ -165,8 +164,6 @@ public class JdbcFilmRepository extends BaseJdbcRepository<Film> implements Film
             }
             return film;
         });
-
-
         return films.values();
     }
 
@@ -187,31 +184,12 @@ public class JdbcFilmRepository extends BaseJdbcRepository<Film> implements Film
 
     @Override
     public Collection<Film> getByDirector(int directorId, String sortBy) {
-        if ("year".equals(sortBy)) {
-            sortBy = "F.RELEASE_DATE";
-        } else {
-            sortBy = "film_likes";
-        }
-        String sql = """
-            SELECT
-                F.FILM_ID,
-                F.NAME,
-                F.DESCRIPTION,
-                F.RELEASE_DATE,
-                F.DURATION,
-                M.MPA_ID,
-                M.NAME as MPA_NAME,
-                COUNT(*) as film_likes
-            FROM FILMS F
-            JOIN MPA M ON M.MPA_ID = F.MPA_ID
-            JOIN FILMS_DIRECTORS FD ON FD.FILM_ID = F.FILM_ID
-            JOIN LIKES L ON L.FILM_ID = F.FILM_ID
-            WHERE FD.DIRECTOR_ID = :directorId
-            GROUP BY F.FILM_ID
-            ORDER BY :sortBy;
-            """;
-        Map<Long, Film> films = jdbc.query(sql, Map.of("directorId", directorId, "sortBy", sortBy), mapper).stream()
+        String sql = generateQueryGetFilmsBySort(sortBy);
+        Map<Long, Film> films = jdbc.query(sql, Map.of("directorId", directorId), mapper).stream()
                 .collect(Collectors.toMap(Film::getId, Function.identity()));
+        if (films.isEmpty()) {
+            return Collections.emptyList();
+        }
         // получить все жанры
         Map<Integer, Genre> genres = getIdsGenresMap();
         // получить всех режиссеров
@@ -235,8 +213,49 @@ public class JdbcFilmRepository extends BaseJdbcRepository<Film> implements Film
                 film.getDirectors().add(director);
             }
             return film;
-        });;
+        });
+
         return films.values();
+    }
+
+    private String generateQueryGetFilmsBySort(String sortBy) {
+        String query;
+        if ("year".equals(sortBy)) {
+            query = """
+                SELECT
+                    F.FILM_ID,
+                    F.NAME,
+                    F.DESCRIPTION,
+                    F.RELEASE_DATE,
+                    F.DURATION,
+                    M.MPA_ID,
+                    M.NAME as MPA_NAME
+                FROM FILMS F
+                JOIN MPA M ON M.MPA_ID = F.MPA_ID
+                JOIN FILMS_DIRECTORS FD ON FD.FILM_ID = F.FILM_ID
+                WHERE FD.DIRECTOR_ID = :directorId
+                GROUP BY F.FILM_ID
+                ORDER BY F.RELEASE_DATE""";
+        } else {
+            query = """
+                SELECT
+                    F.FILM_ID,
+                    F.NAME,
+                    F.DESCRIPTION,
+                    F.RELEASE_DATE,
+                    F.DURATION,
+                    M.MPA_ID,
+                    M.NAME as MPA_NAME,
+                    COUNT(*) as film_likes
+                FROM FILMS F
+                JOIN MPA M ON M.MPA_ID = F.MPA_ID
+                JOIN FILMS_DIRECTORS FD ON FD.FILM_ID = F.FILM_ID
+                JOIN LIKES L ON L.FILM_ID = F.FILM_ID
+                WHERE FD.DIRECTOR_ID = :directorId
+                GROUP BY F.FILM_ID
+                ORDER BY film_likes""";
+        }
+        return query;
     }
 
     @Override
