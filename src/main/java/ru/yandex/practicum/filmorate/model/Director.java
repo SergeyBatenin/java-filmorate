@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @EqualsAndHashCode(of = "id")
 public class Director {
-    private int id;
+    private Integer id;
     @NotBlank
     private String name;
 }
