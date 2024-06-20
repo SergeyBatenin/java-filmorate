@@ -4,6 +4,7 @@ import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.model.Film;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -66,5 +67,10 @@ public class InMemoryFilmRepository implements FilmRepository {
                 })
                 .limit(count)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public Collection<Film> getCommonFilms(long userId, long friendId) {
+        return Collections.emptyList();
     }
 }

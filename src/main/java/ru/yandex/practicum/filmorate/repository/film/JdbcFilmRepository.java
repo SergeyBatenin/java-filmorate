@@ -159,7 +159,7 @@ public class JdbcFilmRepository extends BaseJdbcRepository<Film> implements Film
                                     SELECT GENRE_ID
                                     FROM FILMS_GENRES
                                     WHERE FILM_ID = :filmId);
-                        """;
+                    """;
             List<Genre> filmGenres = jdbc.query(getFilmGenresQuery, Map.of("filmId", id), new GenreMapper());
             film.getGenres().addAll(filmGenres);
 
@@ -213,5 +213,47 @@ public class JdbcFilmRepository extends BaseJdbcRepository<Film> implements Film
                 });
 
         return films;
+    }
+
+    @Override
+    public Collection<Film> getCommonFilms(long userId, long friendId) {
+        String sqlQuery = """
+                SELECT
+                    F.FilM_ID,
+                    F.NAME,
+                    F.DESCRIPTION,
+                    F.RELEASE_DATE,
+                    F.DURATION,
+                    F.MPA_ID,
+                    M.NAME as MPA_NAME,
+                    COUNT(L_ALL.USER_ID) as LIKES
+                FROM FILMS F
+                JOIN LIKES L1 ON L1.FILM_ID = F.FILM_ID
+                JOIN LIKES L2 ON L2.FILM_ID = F.FILM_ID
+                LEFT JOIN LIKES L_ALL ON L_ALL.FILM_ID = F.FILM_ID
+                LEFT JOIN MPA M ON M.MPA_ID = F.MPA_ID
+                WHERE L1.USER_ID = :userId AND L2.USER_ID = :friendId
+                GROUP BY F.FILM_ID, M.MPA_ID
+                ORDER BY LIKES DESC, F.FILM_ID;
+                """;
+
+        MapSqlParameterSource params = new MapSqlParameterSource()
+                .addValue("userId", userId)
+                .addValue("friendId", friendId);
+
+        Map<Long, Film> filmMap = jdbc.query(sqlQuery, params, mapper).stream()
+                .collect(Collectors.toMap(Film::getId, Function.identity()));
+        Map<Integer, Genre> genres = getIdsGenresMap();
+
+        jdbc.query("SELECT * FROM FILMS_GENRES WHERE FILM_ID IN (:filmIds);",
+                Map.of("filmIds", filmMap.keySet()),
+                (rs, rowNum) -> {
+                    Film film = filmMap.get(rs.getLong("FILM_ID"));
+                    Genre genre = genres.get(rs.getInt("GENRE_ID"));
+                    film.getGenres().add(genre);
+                    return film;
+                });
+
+        return filmMap.values();
     }
 }

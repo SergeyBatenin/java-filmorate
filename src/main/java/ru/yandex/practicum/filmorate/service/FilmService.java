@@ -20,4 +20,6 @@ public interface FilmService {
     Collection<Film> getMostPopular(int count);
 
     Film getById(long filmId);
+
+    Collection<Film> getCommonFilms(long userId, long friendId);
 }

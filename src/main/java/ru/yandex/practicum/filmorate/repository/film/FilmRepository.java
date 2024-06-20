@@ -17,4 +17,6 @@ public interface FilmRepository {
     void delete(Long id);
 
     Collection<Film> getMostPopular(int count);
+
+    Collection<Film> getCommonFilms(long userId, long friendId);
 }
