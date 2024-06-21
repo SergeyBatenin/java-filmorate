@@ -34,12 +34,11 @@ public class FilmServiceImpl implements FilmService {
 
     @Override
     public Film getById(long filmId) {
-        Film film = filmRepository.getById(filmId)
+        return filmRepository.getById(filmId)
                 .orElseThrow(() -> {
                     log.debug("GET FILM By ID {}. Фильм с айди {} не найден", filmId, filmId);
-                    return new NotFoundException("Фильм с id=" + filmId + " не существует");
+                    return new NotFoundException("Фильма с id=" + filmId + " не существует");
                 });
-        return film;
     }
 
     @Override
@@ -52,10 +51,10 @@ public class FilmServiceImpl implements FilmService {
 
     @Override
     public Film update(Film film) {
-        final Film updatedFilm = filmRepository.getById(film.getId())
+        filmRepository.getById(film.getId())
                 .orElseThrow(() -> {
                     log.debug("UPDATE {}. Фильм с id={} не найден", film, film.getId());
-                    return new NotFoundException("Фильм с id=" + film.getId() + " не существует");
+                    return new NotFoundException("Фильма с id=" + film.getId() + " не существует");
                 });
         checkFilmMpa(film);
         checkFilmGenres(film);
@@ -73,7 +72,7 @@ public class FilmServiceImpl implements FilmService {
         mpaRepository.getById(mapId)
                 .orElseThrow(() -> {
                     log.debug("CHECK MpaFilm {}. Рейтинг с id={} не найден", film, mapId);
-                    return new MpaNotExistsException("Рейтинг с id=" + mapId + " не существует");
+                    return new MpaNotExistsException("Рейтинга с id=" + mapId + " не существует");
                 });
     }
 
@@ -96,12 +95,12 @@ public class FilmServiceImpl implements FilmService {
         userRepository.getById(userId)
                 .orElseThrow(() -> {
                     log.debug("LIKE-FILM {}<-{}. Пользователь с id={} не найден", filmId, userId, userId);
-                    return new NotFoundException("Пользователь с id=" + userId + " не существует");
+                    return new NotFoundException("Пользователя с id=" + userId + " не существует");
                 });
         filmRepository.getById(filmId)
                 .orElseThrow(() -> {
                     log.debug("LIKE-FILM {}<-{}. Фильм с id={} не найден", filmId, userId, filmId);
-                    return new NotFoundException("Фильм с id=" + filmId + " не существует");
+                    return new NotFoundException("Фильма с id=" + filmId + " не существует");
                 });
         likeRepository.like(filmId, userId);
     }
@@ -110,13 +109,13 @@ public class FilmServiceImpl implements FilmService {
     public void unlike(long filmId, long userId) {
         userRepository.getById(userId)
                 .orElseThrow(() -> {
-                    log.debug("LIKE-FILM {}<-{}. Пользователь с id={} не найден", filmId, userId, userId);
-                    return new NotFoundException("Пользователь с id=" + userId + " не существует");
+                    log.debug("UNLIKE-FILM {}<-{}. Пользователь с id={} не найден", filmId, userId, userId);
+                    return new NotFoundException("Пользователя с id=" + userId + " не существует");
                 });
         filmRepository.getById(filmId)
                 .orElseThrow(() -> {
-                    log.debug("LIKE-FILM {}<-{}. Фильм с id={} не найден", filmId, userId, filmId);
-                    return new NotFoundException("Фильм с id=" + filmId + " не существует");
+                    log.debug("UNLIKE-FILM {}<-{}. Фильм с id={} не найден", filmId, userId, filmId);
+                    return new NotFoundException("Фильма с id=" + filmId + " не существует");
                 });
         likeRepository.unlike(filmId, userId);
     }
@@ -131,12 +130,12 @@ public class FilmServiceImpl implements FilmService {
         userRepository.getById(userId)
                 .orElseThrow(() -> {
                     log.debug("GetCommonFilms {}<-{}. Пользователь с id={} не найден", userId, friendId, userId);
-                    return new NotFoundException("Пользователь с id=" + userId + " не существует");
+                    return new NotFoundException("Пользователя с id=" + userId + " не существует");
                 });
         userRepository.getById(friendId)
                 .orElseThrow(() -> {
                     log.debug("GetCommonFilms {}<-{}. Пользователь с id={} не найден", userId, friendId, friendId);
-                    return new NotFoundException("Пользователь с id=" + friendId + " не существует");
+                    return new NotFoundException("Пользователя с id=" + friendId + " не существует");
         });
         return filmRepository.getCommonFilms(userId, friendId);
     }
