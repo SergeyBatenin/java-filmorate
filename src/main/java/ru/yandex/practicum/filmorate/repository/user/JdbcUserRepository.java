@@ -15,7 +15,6 @@ import ru.yandex.practicum.filmorate.repository.BaseJdbcRepository;
 import ru.yandex.practicum.filmorate.repository.film.FilmMapper;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
