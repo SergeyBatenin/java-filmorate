@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
+import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.repository.user.UserRepository;
 
@@ -69,6 +70,12 @@ public class UserServiceImpl implements UserService {
         checkUserExistence(userId,"GET-COMMON-FRIENDS-USER");
         checkUserExistence(otherId,"GET-COMMON-FRIENDS-FRIEND");
         return repository.getCommonFriends(userId, otherId);
+    }
+
+    @Override
+    public Collection<Film> getFilmRecommendations(long userId) {
+        checkUserExistence(userId,"FILM-RECOMMENDATIONS");
+        return repository.getFilmRecommendations(userId);
     }
 
     private void checkAndInitializeUserName(User user) {
