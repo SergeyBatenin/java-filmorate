@@ -35,7 +35,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User update(User user) {
-        checkUserExistence(user.getId(),"UPDATE");
+        checkUserExistence(user.getId(), "UPDATE");
         checkAndInitializeUserName(user);
         return repository.update(user);
     }
@@ -47,34 +47,34 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void addFriend(long userId, long friendId) {
-        checkUserExistence(userId,"ADD-FRIEND-USER");
-        checkUserExistence(friendId,"ADD-FRIEND-FRIEND");
+        checkUserExistence(userId, "ADD-FRIEND-USER");
+        checkUserExistence(friendId, "ADD-FRIEND-FRIEND");
         repository.addFriend(userId, friendId);
     }
 
     @Override
     public void deleteFriend(long userId, long friendId) {
-        checkUserExistence(userId,"DELETE-FRIEND-USER");
-        checkUserExistence(friendId,"DElETE-FRIEND-FRIEND");
+        checkUserExistence(userId, "DELETE-FRIEND-USER");
+        checkUserExistence(friendId, "DElETE-FRIEND-FRIEND");
         repository.deleteFriend(userId, friendId);
     }
 
     @Override
     public Collection<User> getFriends(long userId) {
-        checkUserExistence(userId,"GET-FRIENDS");
+        checkUserExistence(userId, "GET-FRIENDS");
         return repository.getFriends(userId);
     }
 
     @Override
     public Collection<User> getCommonFriends(long userId, long otherId) {
-        checkUserExistence(userId,"GET-COMMON-FRIENDS-USER");
-        checkUserExistence(otherId,"GET-COMMON-FRIENDS-FRIEND");
+        checkUserExistence(userId, "GET-COMMON-FRIENDS-USER");
+        checkUserExistence(otherId, "GET-COMMON-FRIENDS-FRIEND");
         return repository.getCommonFriends(userId, otherId);
     }
 
     @Override
     public Collection<Film> getFilmRecommendations(long userId) {
-        checkUserExistence(userId,"FILM-RECOMMENDATIONS");
+        checkUserExistence(userId, "FILM-RECOMMENDATIONS");
         return repository.getFilmRecommendations(userId);
     }
 
@@ -84,7 +84,7 @@ public class UserServiceImpl implements UserService {
         }
     }
 
-    private void checkUserExistence(Long userId, String method){
+    private void checkUserExistence(Long userId, String method) {
         repository.getById(userId)
                 .orElseThrow(() -> {
                     log.info("{} Пользователь с id={} не найден", method, userId);
