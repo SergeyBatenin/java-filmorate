@@ -88,14 +88,14 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     private void checkFilmExist(Long filmId) {
-        userRepository.getById(filmId).orElseThrow(() -> {
+        filmRepository.getById(filmId).orElseThrow(() -> {
             log.debug("Фильм с айди {} не найден", filmId);
             return new NotFoundException("Фильма с id=" + filmId + " не существует");
         });
     }
 
     private void checkUserExist(Long userId) {
-        filmRepository.getById(userId).orElseThrow(() -> {
+        userRepository.getById(userId).orElseThrow(() -> {
             log.debug("Пользователь с айди {} не найден", userId);
             return new NotFoundException("Пользователя с id=" + userId + " не существует");
         });
