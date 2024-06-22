@@ -129,12 +129,12 @@ public class FilmServiceImpl implements FilmService {
     public Collection<Film> getCommonFilms(long userId, long friendId) {
         userRepository.getById(userId)
                 .orElseThrow(() -> {
-                    log.debug("GetCommonFilms {}<-{}. Пользователь с id={} не найден", userId, friendId, userId);
+                    log.debug("FILM-COMMON {}<-{}. Пользователь с id={} не найден", userId, friendId, userId);
                     return new NotFoundException("Пользователя с id=" + userId + " не существует");
                 });
         userRepository.getById(friendId)
                 .orElseThrow(() -> {
-                    log.debug("GetCommonFilms {}<-{}. Пользователь с id={} не найден", userId, friendId, friendId);
+                    log.debug("FILM-COMMON {}<-{}. Пользователь с id={} не найден", userId, friendId, friendId);
                     return new NotFoundException("Пользователя с id=" + friendId + " не существует");
         });
         return filmRepository.getCommonFilms(userId, friendId);
