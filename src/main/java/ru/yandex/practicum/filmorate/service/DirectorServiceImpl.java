@@ -22,12 +22,11 @@ public class DirectorServiceImpl implements DirectorService {
 
     @Override
     public Director getById(int directorId) {
-        final Director director = directorRepository.getById(directorId)
+        return directorRepository.getById(directorId)
                 .orElseThrow(() -> {
                     log.debug("GET DIRECTOR By ID {}. Режиссер с айди {} не найден", directorId, directorId);
                     return new NotFoundException("Режиссер с id=" + directorId + " не существует");
                 });
-        return director;
     }
 
     @Override
@@ -37,22 +36,13 @@ public class DirectorServiceImpl implements DirectorService {
 
     @Override
     public Director update(Director director) {
-        final Director updatedDirector = directorRepository.getById(director.getId())
-                .orElseThrow(() -> {
-                    log.debug("GET DIRECTOR {}. Режиссер с айди {} не найден", director, director.getId());
-                    return new NotFoundException("Режиссер с id=" + director.getId() + " не существует");
-                });
+        directorRepository.getById(director.getId());
 
         return directorRepository.update(director);
     }
 
     @Override
     public void removeById(int directorId) {
-        directorRepository.getById(directorId)
-                .orElseThrow(() -> {
-                    log.debug("GET DIRECTOR BY Id {}. Режиссер с айди {} не найден", directorId, directorId);
-                    return new NotFoundException("Режиссер с id=" + directorId + " не существует");
-                });
         directorRepository.removeById(directorId);
     }
 }

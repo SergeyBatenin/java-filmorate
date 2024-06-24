@@ -25,6 +25,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -167,7 +168,7 @@ public class JdbcFilmRepository extends BaseJdbcRepository<Film> implements Film
 
     @Override
     public Collection<Film> getByDirector(int directorId, String sortBy) {
-        Map<Long, Film> films;
+        LinkedHashMap<Long, Film> films;
         if ("year".equals(sortBy)) {
             films = getByYear(directorId);
         } else {
@@ -218,7 +219,7 @@ public class JdbcFilmRepository extends BaseJdbcRepository<Film> implements Film
         });
     }
 
-    private Map<Long, Film> getByYear(int directorId) {
+    private LinkedHashMap<Long, Film> getByYear(int directorId) {
         String getFilmsByYear = """
                 SELECT
                     F.FILM_ID,
@@ -232,13 +233,15 @@ public class JdbcFilmRepository extends BaseJdbcRepository<Film> implements Film
                 JOIN MPA M ON M.MPA_ID = F.MPA_ID
                 JOIN FILMS_DIRECTORS FD ON FD.FILM_ID = F.FILM_ID
                 WHERE FD.DIRECTOR_ID = :directorId
-                GROUP BY F.FILM_ID
+                GROUP BY F.RELEASE_DATE, F.FILM_ID
                 ORDER BY F.RELEASE_DATE""";
         return jdbc.query(getFilmsByYear, Map.of("directorId", directorId), mapper).stream()
-                .collect(Collectors.toMap(Film::getId, Function.identity()));
+                .collect(Collectors.toMap(Film::getId, Function.identity(),
+                        (oldValue, newValue) -> oldValue,
+                        LinkedHashMap::new));
     }
 
-    private Map<Long, Film> getByLikes(int directorId) {
+    private LinkedHashMap<Long, Film> getByLikes(int directorId) {
         String getFilmsByLikes = """
                 SELECT
                     F.FILM_ID,
@@ -257,7 +260,9 @@ public class JdbcFilmRepository extends BaseJdbcRepository<Film> implements Film
                 GROUP BY F.FILM_ID
                 ORDER BY film_likes""";
         return jdbc.query(getFilmsByLikes, Map.of("directorId", directorId), mapper).stream()
-                .collect(Collectors.toMap(Film::getId, Function.identity()));
+                .collect(Collectors.toMap(Film::getId, Function.identity(),
+                        (oldValue, newValue) -> oldValue,
+                        LinkedHashMap::new));
     }
 
     @Override
@@ -324,38 +329,12 @@ public class JdbcFilmRepository extends BaseJdbcRepository<Film> implements Film
                 ORDER BY total DESC, F.FILM_ID
                 LIMIT :count;
                 """;
-        List<Film> films = jdbc.query(sqlQuery, Map.of("count", count), mapper);
-
-        Map<Long, Film> idFilmsMap = films.stream()
+        Map<Long, Film> films = jdbc.query(sqlQuery, Map.of("count", count), mapper).stream()
                 .collect(Collectors.toMap(Film::getId, Function.identity()));
-        Map<Integer, Genre> genres = getIdsGenresMap();
-        Map<Integer, Director> directors = getIdsDirectorsMap();
 
-        jdbc.query("SELECT * FROM FILMS_GENRES WHERE FILM_ID IN (:filmsId);",
-                Map.of("filmsId", idFilmsMap.keySet()),
-                (rs, intRow) -> {
-                    Film film = null;
-                    while (rs.next()) {
-                        film = idFilmsMap.get(rs.getLong("FILM_ID"));
-                        Genre genre = genres.get(rs.getInt("GENRE_ID"));
-                        film.getGenres().add(genre);
-                    }
-                    return film;
-                });
+        initializeGenresAndDirectors(films);
 
-        jdbc.query("SELECT * FROM FILMS_DIRECTORS WHERE FILM_ID IN (:filmsId);",
-                Map.of("filmsId", idFilmsMap.keySet()),
-                (rs, intRow) -> {
-                    Film film = null;
-                    while (rs.next()) {
-                        film = idFilmsMap.get(rs.getLong("FILM_ID"));
-                        Director director = directors.get(rs.getInt("DIRECTOR_ID"));
-                        film.getDirectors().add(director);
-                    }
-                    return film;
-                });
-
-        return films;
+        return films.values();
     }
 
     @Override
