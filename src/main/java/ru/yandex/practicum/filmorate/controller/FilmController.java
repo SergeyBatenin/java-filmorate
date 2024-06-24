@@ -35,9 +35,9 @@ public class FilmController {
 
     @GetMapping("/director/{directorId}")
     public Collection<Film> getByDirector(@PathVariable int directorId, @RequestParam String sortBy) {
-        log.info("GET /films/directors/{}/{} request", directorId, sortBy);
+        log.info("GET /films/director/{}/{} request", directorId, sortBy);
         Collection<Film> films = filmService.getByDirector(directorId, sortBy);
-        log.info("GET /films/directors/{}/{} response: {}", directorId, sortBy, films.size());
+        log.info("GET /films/director/{}/{} response: {}", directorId, sortBy, films.size());
         return films;
     }
 

@@ -52,9 +52,9 @@ public class DirectorController {
 
     @PutMapping
     public Director update(@Validated @RequestBody Director director) {
-        log.info("PUT /films request: {}", director);
+        log.info("PUT /directors request: {}", director);
         Director updatedDirector = directorService.update(director);
-        log.info("PUT /films response: {}", updatedDirector);
+        log.info("PUT /directors response: {}", updatedDirector);
         return updatedDirector;
     }
 
