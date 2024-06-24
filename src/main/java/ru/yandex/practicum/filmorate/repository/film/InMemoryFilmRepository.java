@@ -70,6 +70,11 @@ public class InMemoryFilmRepository implements FilmRepository {
     }
 
     @Override
+    public Collection<Film> getByDirector(int directorId, String sortBy) {
+        return null;
+    }
+
+    @Override
     public Collection<Film> getCommonFilms(long userId, long friendId) {
         return Collections.emptyList();
     }

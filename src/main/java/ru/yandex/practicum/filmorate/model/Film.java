@@ -30,4 +30,5 @@ public class Film {
     @NotNull
     private Mpa mpa;
     LinkedHashSet<Genre> genres;
+    LinkedHashSet<Director> directors;
 }

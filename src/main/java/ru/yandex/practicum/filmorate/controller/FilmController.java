@@ -33,6 +33,14 @@ public class FilmController {
         return films;
     }
 
+    @GetMapping("/director/{directorId}")
+    public Collection<Film> getByDirector(@PathVariable int directorId, @RequestParam String sortBy) {
+        log.info("GET /films/director/{}/{} request", directorId, sortBy);
+        Collection<Film> films = filmService.getByDirector(directorId, sortBy);
+        log.info("GET /films/director/{}/{} response: {}", directorId, sortBy, films.size());
+        return films;
+    }
+
     @GetMapping("/{filmId}")
     public Film getById(@PathVariable long filmId) {
         log.info("GET /films{} request", filmId);
