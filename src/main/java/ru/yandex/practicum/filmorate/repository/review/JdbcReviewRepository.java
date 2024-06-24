@@ -8,11 +8,11 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Repository;
+import ru.yandex.practicum.filmorate.exception.SaveDataException;
 import ru.yandex.practicum.filmorate.model.Review;
 import ru.yandex.practicum.filmorate.repository.BaseJdbcRepository;
 
 import java.util.Collection;
-import java.util.Objects;
 import java.util.Optional;
 
 @Repository
@@ -27,7 +27,7 @@ public class JdbcReviewRepository extends BaseJdbcRepository<Review> implements 
     public Review create(Review review) {
         GeneratedKeyHolder keyHolder = new GeneratedKeyHolder();
         final String sql = """
-                INSERT INTO REVIEWS (FILM_ID,USER_ID, CONTENT, IS_POSITIVE)
+                INSERT INTO REVIEWS (FILM_ID, USER_ID, CONTENT, IS_POSITIVE)
                 VALUES (:filmId, :userId, :content, :isPositive);
                 """;
 
@@ -38,8 +38,13 @@ public class JdbcReviewRepository extends BaseJdbcRepository<Review> implements 
                 .addValue("isPositive", review.getIsPositive());
         jdbc.update(sql, params, keyHolder);
 
-        long id = Objects.requireNonNull(keyHolder.getKey()).longValue();
-        review.setReviewId(id);
+        Long id = keyHolder.getKeyAs(Long.class);
+
+        if (id != null) {
+            review.setReviewId(id);
+        } else {
+            throw new SaveDataException("Не удалось сохранить данные:" + review);
+        }
 
         return review;
     }
@@ -93,7 +98,6 @@ public class JdbcReviewRepository extends BaseJdbcRepository<Review> implements 
                 SELECT *
                 FROM REVIEWS
                 WHERE FILM_ID = :filmId
-                ORDER BY FILM_ID DESC
                 LIMIT :count;
                 """;
 
@@ -108,7 +112,6 @@ public class JdbcReviewRepository extends BaseJdbcRepository<Review> implements 
         final String sql = """
                 SELECT *
                 FROM REVIEWS
-                ORDER BY FILM_ID DESC
                 LIMIT :count;
                 """;
 

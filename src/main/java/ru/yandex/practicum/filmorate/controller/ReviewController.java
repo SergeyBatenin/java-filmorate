@@ -62,7 +62,7 @@ public class ReviewController {
             @RequestParam(required = false, defaultValue = "10") int count) {
         log.info("GET /reviews?filmId={}, count={} request", filmId, count);
         Collection<Review> reviews = reviewService.getReviews(filmId, count);
-        log.info("GET /reviews?filmId={}, count={} response: success", filmId, count);
+        log.info("GET /reviews?filmId={}, count={} response: {}", filmId, count, reviews.size());
         return reviews;
     }
 

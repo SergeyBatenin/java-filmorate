@@ -36,7 +36,6 @@ public class ReviewServiceImpl implements ReviewService {
 
     @Override
     public void delete(Long reviewId) {
-        checkReviewExist(reviewId, "DELETE");
         reviewRepository.delete(reviewId);
     }
 
@@ -44,8 +43,8 @@ public class ReviewServiceImpl implements ReviewService {
     public Review getById(Long reviewId) {
         return reviewRepository.getById(reviewId)
                 .orElseThrow(() -> {
-                    log.debug("GET-BY-ID. Отзыв с айди {} не найден", reviewId);
-                    return new NotFoundException("Отзыва с id=" + reviewId + " не существует");
+                    log.debug("GET-REVIEW-BY-ID. Отзыв с айди {} не найден", reviewId);
+                    return new NotFoundException("Отзыв с id=" + reviewId + " не существует");
                 });
     }
 
@@ -90,21 +89,21 @@ public class ReviewServiceImpl implements ReviewService {
     private void checkReviewExist(Long reviewId, String method) {
         reviewRepository.getById(reviewId).orElseThrow(() -> {
             log.debug("{}. Отзыв с id={} не найден", method, reviewId);
-            return new NotFoundException("Отзыва с id=" + reviewId + " не существует");
+            return new NotFoundException("Отзыв с id=" + reviewId + " не существует");
         });
     }
 
     private void checkFilmExist(Long filmId, String method) {
         filmRepository.getById(filmId).orElseThrow(() -> {
             log.debug("{}. Фильм с id={} не найден", method, filmId);
-            return new NotFoundException("Фильма с id=" + filmId + " не существует");
+            return new NotFoundException("Фильм с id=" + filmId + " не существует");
         });
     }
 
     private void checkUserExist(Long userId, String method) {
         userRepository.getById(userId).orElseThrow(() -> {
             log.info("{}. Пользователь с id={} не найден", method, userId);
-            return new NotFoundException("Пользователя с id=" + userId + " не существует");
+            return new NotFoundException("Пользователь с id=" + userId + " не существует");
         });
     }
 }
