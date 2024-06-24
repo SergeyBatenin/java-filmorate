@@ -402,7 +402,7 @@ public class JdbcFilmRepository extends BaseJdbcRepository<Film> implements Film
                 LEFT JOIN LIKES L ON L.FILM_ID = F.FILM_ID
                 WHERE G.GENRE_ID = :genreId
                 GROUP BY F.FILM_ID, FG.GENRE_ID
-                ORDER BY LIKE_COUNT DESC;    
+                ORDER BY LIKE_COUNT DESC;
                 """;
         List<Film> films = jdbc.query(sqlQuery, Map.of("genreId", genreId), mapper);
 
@@ -444,7 +444,7 @@ public class JdbcFilmRepository extends BaseJdbcRepository<Film> implements Film
                 LEFT JOIN LIKES L ON L.FILM_ID = F.FILM_ID
                 WHERE YEAR(F.RELEASE_DATE) = :year AND G.GENRE_ID = :genreId
                 GROUP BY F.FILM_ID, FG.GENRE_ID
-                ORDER BY LIKE_COUNT DESC; 
+                ORDER BY LIKE_COUNT DESC;
                 """;
         List<Film> films = jdbc.query(sqlQuery, Map.of("year", year, "genreId", genreId), mapper);
 
