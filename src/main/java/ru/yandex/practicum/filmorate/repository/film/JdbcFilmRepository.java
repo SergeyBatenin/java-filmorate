@@ -342,6 +342,132 @@ public class JdbcFilmRepository extends BaseJdbcRepository<Film> implements Film
     }
 
     @Override
+    public Collection<Film> getPopularFilmsByYear(int year) {
+        String sqlQuery = """
+        SELECT
+        F.FILM_ID AS ID,
+        F.NAME AS FILM_NAME,
+        F.DESCRIPTION,
+        F.RELEASE_DATE,
+        F.DURATION,
+        F.MPA_ID,
+        M.NAME as MPA_NAME,
+        COUNT(L.FILM_ID) AS LIKE_COUNT
+        FROM FILMS F
+        JOIN FILMS_GENRES FG ON F.FILM_ID = FG.FILM_ID
+        LEFT JOIN GENRES G ON FG.GENRE_ID = G.GENRE_ID
+        JOIN MPA M ON F.MPA_ID = M.MPA_ID
+        LEFT JOIN LIKES L ON L.FILM_ID = F.FILM_ID
+        WHERE YEAR(F.RELEASE_DATE) = :year
+        GROUP BY F.FILM_ID, FG.GENRE_ID
+        ORDER BY LIKE_COUNT DESC;
+                """;
+        List<Film> films = jdbc.query(sqlQuery, Map.of("year", year), mapper);
+
+        Map<Long, Film> idFilmsMap = films.stream()
+                .collect(Collectors.toMap(Film::getId, Function.identity()));
+        Map<Integer, Genre> genres = getIdsGenresMap();
+
+        jdbc.query("SELECT * FROM FILMS_GENRES WHERE FILM_ID IN (:filmsId);",
+                Map.of("filmsId", idFilmsMap.keySet()),
+                (rs, intRow) -> {
+                    Film film = null;
+                    while (rs.next()) {
+                        film = idFilmsMap.get(rs.getLong("FILM_ID"));
+                        Genre genre = genres.get(rs.getInt("GENRE_ID"));
+                        film.getGenres().add(genre);
+                    }
+                    return film;
+                });
+
+        return films;
+    }
+
+    @Override
+    public Collection<Film> getPopularFilmsByGenre(int genreId) {
+        String sqlQuery = """
+                SELECT
+                F.FILM_ID AS ID,
+                F.NAME AS FILM_NAME,
+                F.DESCRIPTION,
+                F.RELEASE_DATE,
+                F.DURATION,
+                F.MPA_ID,
+                M.NAME as MPA_NAME,
+                COUNT(L.FILM_ID) AS LIKE_COUNT
+                FROM FILMS F
+                JOIN FILMS_GENRES FG ON F.FILM_ID = FG.FILM_ID
+                LEFT JOIN GENRES G ON FG.GENRE_ID = G.GENRE_ID
+                JOIN MPA M ON F.MPA_ID = M.MPA_ID
+                LEFT JOIN LIKES L ON L.FILM_ID = F.FILM_ID
+                WHERE G.GENRE_ID = :genreId
+                GROUP BY F.FILM_ID, FG.GENRE_ID
+                ORDER BY LIKE_COUNT DESC;    
+                """;
+        List<Film> films = jdbc.query(sqlQuery, Map.of("genreId", genreId), mapper);
+
+        Map<Long, Film> idFilmsMap = films.stream()
+                .collect(Collectors.toMap(Film::getId, Function.identity()));
+        Map<Integer, Genre> genres = getIdsGenresMap();
+
+        jdbc.query("SELECT * FROM FILMS_GENRES WHERE FILM_ID IN (:filmsId);",
+                Map.of("filmsId", idFilmsMap.keySet()),
+                (rs, intRow) -> {
+                    Film film = null;
+                    while (rs.next()) {
+                        film = idFilmsMap.get(rs.getLong("FILM_ID"));
+                        Genre genre = genres.get(rs.getInt("GENRE_ID"));
+                        film.getGenres().add(genre);
+                    }
+                    return film;
+                });
+
+        return films;
+    }
+
+    @Override
+    public Collection<Film> getPopularFilmsByYearAndGenre(int year, int genreId) {
+        String sqlQuery = """
+        SELECT
+        F.FILM_ID AS ID,
+        F.NAME AS FILM_NAME,
+        F.DESCRIPTION,
+        F.RELEASE_DATE,
+        F.DURATION,
+        F.MPA_ID,
+        M.NAME as MPA_NAME,
+        COUNT(L.FILM_ID) AS LIKE_COUNT
+        FROM FILMS F
+        JOIN FILMS_GENRES FG ON F.FILM_ID = FG.FILM_ID
+        LEFT JOIN GENRES G ON FG.GENRE_ID = G.GENRE_ID
+        JOIN MPA M ON F.MPA_ID = M.MPA_ID
+        LEFT JOIN LIKES L ON L.FILM_ID = F.FILM_ID
+        WHERE YEAR(F.RELEASE_DATE) = :year AND G.GENRE_ID = :genreId
+        GROUP BY F.FILM_ID, FG.GENRE_ID
+        ORDER BY LIKE_COUNT DESC; 
+    """;
+        List<Film> films = jdbc.query(sqlQuery, Map.of("year", year, "genreId", genreId), mapper);
+
+        Map<Long, Film> idFilmsMap = films.stream()
+                .collect(Collectors.toMap(Film::getId, Function.identity()));
+        Map<Integer, Genre> genres = getIdsGenresMap();
+
+        jdbc.query("SELECT * FROM FILMS_GENRES WHERE FILM_ID IN (:filmsId);",
+                Map.of("filmsId", idFilmsMap.keySet()),
+                (rs, intRow) -> {
+                    Film film = null;
+                    while (rs.next()) {
+                        film = idFilmsMap.get(rs.getLong("FILM_ID"));
+                        Genre genre = genres.get(rs.getInt("GENRE_ID"));
+                        film.getGenres().add(genre);
+                    }
+                    return film;
+                });
+
+        return films;
+    }
+
+    @Override
     public Collection<Film> getCommonFilms(long userId, long friendId) {
         String sqlQuery = """
                 SELECT

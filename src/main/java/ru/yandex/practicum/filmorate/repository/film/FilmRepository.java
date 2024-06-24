@@ -24,4 +24,10 @@ public interface FilmRepository {
     Collection<Film> getCommonFilms(long userId, long friendId);
 
     Collection<Film> search(String keyword, Set<String> searchParams);
+
+    Collection<Film> getPopularFilmsByYear(int year);
+
+    Collection<Film> getPopularFilmsByGenre(int genreId);
+
+    Collection<Film> getPopularFilmsByYearAndGenre(int year, int genreId);
 }

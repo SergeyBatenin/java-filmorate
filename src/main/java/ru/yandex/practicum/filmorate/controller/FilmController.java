@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.controller;
 
+import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
@@ -88,9 +89,11 @@ public class FilmController {
     }
 
     @GetMapping("/popular")
-    public Collection<Film> getMostPopular(@RequestParam(defaultValue = "10") int count) {
+    public Collection<Film> getMostPopular(@RequestParam(required = false) @Min(0) Integer count,
+                                           @RequestParam(defaultValue = "0") Integer genreId,
+                                           @RequestParam(required = false) @Min(1895) Integer year) {
         log.info("GET /films/popular?count={} request", count);
-        Collection<Film> films = filmService.getMostPopular(count);
+        Collection<Film> films = filmService.getMostPopular(count,genreId,year);
         log.info("GET /films/popular?count={} response: {}", count, films.size());
         return films;
     }
