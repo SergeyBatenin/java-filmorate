@@ -47,11 +47,6 @@ public class DirectorServiceImpl implements DirectorService {
 
     @Override
     public void removeById(int directorId) {
-        directorRepository.getById(directorId)
-                .orElseThrow(() -> {
-                    log.debug("GET DIRECTOR BY Id {}. Режиссер с айди {} не найден", directorId, directorId);
-                    return new NotFoundException("Режиссер с id=" + directorId + " не существует");
-                });
         directorRepository.removeById(directorId);
     }
 }

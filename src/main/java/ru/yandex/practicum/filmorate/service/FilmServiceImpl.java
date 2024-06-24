@@ -79,19 +79,11 @@ public class FilmServiceImpl implements FilmService {
         filmRepository.delete(filmId);
     }
 
-    private void checkFilmMpa(Film film) {
-        int mapId = film.getMpa().getId();
-        mpaRepository.getById(mapId)
-                .orElseThrow(() -> {
-                    log.debug("CHECK MpaFilm {}. Рейтинг с id={} не найден", film, mapId);
-                    return new MpaNotExistsException("Рейтинг с id=" + mapId + " не существует");
-                });
-    }
-
     @Override
     public void like(long filmId, long userId) {
         checkUserExist(userId, "LIKE-FILM");
         checkFilmExist(filmId, "LIKE-FILM");
+
         likeRepository.like(filmId, userId);
     }
 
@@ -99,6 +91,7 @@ public class FilmServiceImpl implements FilmService {
     public void unlike(long filmId, long userId) {
         checkUserExist(userId, "UNLIKE-FILM");
         checkFilmExist(filmId, "UNLIKE-FILM");
+
         likeRepository.unlike(filmId, userId);
     }
 
@@ -109,9 +102,19 @@ public class FilmServiceImpl implements FilmService {
 
     @Override
     public Collection<Film> getCommonFilms(long userId, long friendId) {
-        checkUserExist(userId, "FILM-COMMON-USER");
-        checkUserExist(friendId, "FILM-COMMON-FRIEND");
+        checkUserExist(userId, "COMMON-FILM-USER");
+        checkUserExist(friendId, "COMMON-FILM-FRIEND");
+
         return filmRepository.getCommonFilms(userId, friendId);
+    }
+
+    private void checkFilmMpa(Film film) {
+        int mapId = film.getMpa().getId();
+        mpaRepository.getById(mapId)
+                .orElseThrow(() -> {
+                    log.debug("CHECK MpaFilm {}. Рейтинг с id={} не найден", film, mapId);
+                    return new MpaNotExistsException("Рейтинг с id=" + mapId + " не существует");
+                });
     }
 
     private void checkFilmGenres(Film film) {
