@@ -233,7 +233,7 @@ public class JdbcFilmRepository extends BaseJdbcRepository<Film> implements Film
                 JOIN MPA M ON M.MPA_ID = F.MPA_ID
                 JOIN FILMS_DIRECTORS FD ON FD.FILM_ID = F.FILM_ID
                 WHERE FD.DIRECTOR_ID = :directorId
-                GROUP BY F.RELEASE_DATE, F.FILM_ID
+                GROUP BY F.FILM_ID
                 ORDER BY F.RELEASE_DATE""";
         return jdbc.query(getFilmsByYear, Map.of("directorId", directorId), mapper).stream()
                 .collect(Collectors.toMap(Film::getId, Function.identity(),
@@ -258,7 +258,7 @@ public class JdbcFilmRepository extends BaseJdbcRepository<Film> implements Film
                 JOIN LIKES L ON L.FILM_ID = F.FILM_ID
                 WHERE FD.DIRECTOR_ID = :directorId
                 GROUP BY F.FILM_ID
-                ORDER BY film_likes""";
+                ORDER BY film_likes DESC""";
         return jdbc.query(getFilmsByLikes, Map.of("directorId", directorId), mapper).stream()
                 .collect(Collectors.toMap(Film::getId, Function.identity(),
                         (oldValue, newValue) -> oldValue,
@@ -329,8 +329,10 @@ public class JdbcFilmRepository extends BaseJdbcRepository<Film> implements Film
                 ORDER BY total DESC, F.FILM_ID
                 LIMIT :count;
                 """;
-        Map<Long, Film> films = jdbc.query(sqlQuery, Map.of("count", count), mapper).stream()
-                .collect(Collectors.toMap(Film::getId, Function.identity()));
+        LinkedHashMap<Long, Film> films = jdbc.query(sqlQuery, Map.of("count", count), mapper).stream()
+                .collect(Collectors.toMap(Film::getId, Function.identity(),
+                        (oldValue, newValue) -> oldValue,
+                        LinkedHashMap::new));
 
         initializeGenresAndDirectors(films);
 
