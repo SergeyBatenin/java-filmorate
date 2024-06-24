@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
 
@@ -91,5 +92,13 @@ public class UserController {
         Collection<User> commonFriends = userService.getCommonFriends(id, otherId);
         log.info("GET /users/{}/friends/common/{} response: {}", id, otherId, commonFriends);
         return commonFriends;
+    }
+
+    @GetMapping("/{userId}/recommendations")
+    public Collection<Film> getFilmRecommendations(@PathVariable long userId) {
+        log.info("GET /users/{}/recommendations request", userId);
+        Collection<Film> recommendedFilms = userService.getFilmRecommendations(userId);
+        log.info("GET /users/{}/recommendations response: {}", userId, recommendedFilms);
+        return recommendedFilms;
     }
 }
