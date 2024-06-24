@@ -38,7 +38,7 @@ public class DirectorServiceImpl implements DirectorService {
     public Director update(Director director) {
         directorRepository.getById(director.getId())
                 .orElseThrow(() -> {
-                    log.debug("GET DIRECTOR {}. Режиссер с айди {} не найден", director.getId(), director.getId());
+                    log.debug("UPDATE DIRECTOR {}. Режиссер с айди {} не найден", director.getId(), director.getId());
                     return new NotFoundException("Режиссер с id=" + director.getId() + " не существует");
                 });
 
