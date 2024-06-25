@@ -48,12 +48,11 @@ public class FilmServiceImpl implements FilmService {
 
     @Override
     public Film getById(long filmId) {
-        Film film = filmRepository.getById(filmId)
+        return filmRepository.getById(filmId)
                 .orElseThrow(() -> {
                     log.debug("GET FILM By ID {}. Фильм с айди {} не найден", filmId, filmId);
                     return new NotFoundException("Фильм с id=" + filmId + " не существует");
                 });
-        return film;
     }
 
     @Override
@@ -67,11 +66,7 @@ public class FilmServiceImpl implements FilmService {
 
     @Override
     public Film update(Film film) {
-        filmRepository.getById(film.getId())
-                .orElseThrow(() -> {
-                    log.debug("UPDATE {}. Фильм с id={} не найден", film, film.getId());
-                    return new NotFoundException("Фильм с id=" + film.getId() + " не существует");
-                });
+        checkFilmExist(film.getId(), "UPDATE");
         checkFilmMpa(film);
         checkFilmGenres(film);
         checkFilmDirectors(film);
@@ -82,6 +77,35 @@ public class FilmServiceImpl implements FilmService {
     @Override
     public void delete(long filmId) {
         filmRepository.delete(filmId);
+    }
+
+    @Override
+    public void like(long filmId, long userId) {
+        checkUserExist(userId, "LIKE-FILM");
+        checkFilmExist(filmId, "LIKE-FILM");
+
+        likeRepository.like(filmId, userId);
+    }
+
+    @Override
+    public void unlike(long filmId, long userId) {
+        checkUserExist(userId, "UNLIKE-FILM");
+        checkFilmExist(filmId, "UNLIKE-FILM");
+
+        likeRepository.unlike(filmId, userId);
+    }
+
+    @Override
+    public Collection<Film> getMostPopular(int count) {
+        return filmRepository.getMostPopular(count);
+    }
+
+    @Override
+    public Collection<Film> getCommonFilms(long userId, long friendId) {
+        checkUserExist(userId, "COMMON-FILM-USER");
+        checkUserExist(friendId, "COMMON-FILM-FRIEND");
+
+        return filmRepository.getCommonFilms(userId, friendId);
     }
 
     private void checkFilmMpa(Film film) {
@@ -121,53 +145,17 @@ public class FilmServiceImpl implements FilmService {
         }
     }
 
-    @Override
-    public void like(long filmId, long userId) {
-        userRepository.getById(userId)
-                .orElseThrow(() -> {
-                    log.debug("LIKE-FILM {}<-{}. Пользователь с id={} не найден", filmId, userId, userId);
-                    return new NotFoundException("Пользователь с id=" + userId + " не существует");
-                });
-        filmRepository.getById(filmId)
-                .orElseThrow(() -> {
-                    log.debug("LIKE-FILM {}<-{}. Фильм с id={} не найден", filmId, userId, filmId);
-                    return new NotFoundException("Фильм с id=" + filmId + " не существует");
-                });
-        likeRepository.like(filmId, userId);
-    }
-
-    @Override
-    public void unlike(long filmId, long userId) {
-        userRepository.getById(userId)
-                .orElseThrow(() -> {
-                    log.debug("LIKE-FILM {}<-{}. Пользователь с id={} не найден", filmId, userId, userId);
-                    return new NotFoundException("Пользователь с id=" + userId + " не существует");
-                });
-        filmRepository.getById(filmId)
-                .orElseThrow(() -> {
-                    log.debug("LIKE-FILM {}<-{}. Фильм с id={} не найден", filmId, userId, filmId);
-                    return new NotFoundException("Фильм с id=" + filmId + " не существует");
-                });
-        likeRepository.unlike(filmId, userId);
-    }
-
-    @Override
-    public Collection<Film> getMostPopular(int count) {
-        return filmRepository.getMostPopular(count);
-    }
-
-    @Override
-    public Collection<Film> getCommonFilms(long userId, long friendId) {
-        userRepository.getById(userId)
-                .orElseThrow(() -> {
-                    log.debug("GetCommonFilms {}<-{}. Пользователь с id={} не найден", userId, friendId, userId);
-                    return new NotFoundException("Пользователь с id=" + userId + " не существует");
-                });
-        userRepository.getById(friendId)
-                .orElseThrow(() -> {
-                    log.debug("GetCommonFilms {}<-{}. Пользователь с id={} не найден", userId, friendId, friendId);
-                    return new NotFoundException("Пользователь с id=" + friendId + " не существует");
+    private void checkFilmExist(Long filmId, String method) {
+        filmRepository.getById(filmId).orElseThrow(() -> {
+            log.debug("{}. Фильм с id={} не найден", method, filmId);
+            return new NotFoundException("Фильм с id=" + filmId + " не существует");
         });
-        return filmRepository.getCommonFilms(userId, friendId);
+    }
+
+    private void checkUserExist(Long userId, String method) {
+        userRepository.getById(userId).orElseThrow(() -> {
+            log.info("{}. Пользователь с id={} не найден", method, userId);
+            return new NotFoundException("Пользователь с id=" + userId + " не существует");
+        });
     }
 }
