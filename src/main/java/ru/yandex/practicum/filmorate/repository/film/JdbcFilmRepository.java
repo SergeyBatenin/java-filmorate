@@ -384,7 +384,7 @@ public class JdbcFilmRepository extends BaseJdbcRepository<Film> implements Film
     @Override
     public Collection<Film> search(String keyword, Set<String> searchParams) {
         String searchQueryPattern = """
-                SELECT f.FILM_ID, F.NAME, F.DESCRIPTION, F.RELEASE_DATE, F.DURATION, F.MPA_ID, M.NAME as MPA_NAME
+                SELECT F.FILM_ID, F.NAME, F.DESCRIPTION, F.RELEASE_DATE, F.DURATION, F.MPA_ID, M.NAME as MPA_NAME
                     FROM FILMS F
                     JOIN MPA M ON M.MPA_ID = F.MPA_ID
                     LEFT JOIN FILMS_DIRECTORS FD ON FD.FILM_ID = F.FILM_ID
