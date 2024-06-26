@@ -63,7 +63,7 @@ public class InMemoryFilmRepository implements FilmRepository {
                 .sorted((f1, f2) -> {
                     int likes1 = likes.get(f1.getId()).size();
                     int likes2 = likes.get(f2.getId()).size();
-                    return  likes2 - likes1;
+                    return likes2 - likes1;
                 })
                 .limit(count)
                 .collect(Collectors.toList());
@@ -71,7 +71,7 @@ public class InMemoryFilmRepository implements FilmRepository {
 
     @Override
     public Collection<Film> getByDirector(int directorId, String sortBy) {
-        return null;
+        return Collections.emptyList();
     }
 
     @Override
@@ -81,6 +81,21 @@ public class InMemoryFilmRepository implements FilmRepository {
 
     @Override
     public Collection<Film> search(String keyword, Set<String> searchParams) {
+        return Collections.emptyList();
+    }
+
+    @Override
+    public Collection<Film> getPopularFilmsByYear(int year) {
+        return Collections.emptyList();
+    }
+
+    @Override
+    public Collection<Film> getPopularFilmsByGenre(int genreId) {
+        return Collections.emptyList();
+    }
+
+    @Override
+    public Collection<Film> getPopularFilmsByYearAndGenre(int year, int genreId) {
         return Collections.emptyList();
     }
 }

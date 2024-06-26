@@ -97,9 +97,18 @@ public class FilmServiceImpl implements FilmService {
         likeRepository.unlike(filmId, userId);
     }
 
-    @Override
-    public Collection<Film> getMostPopular(int count) {
-        return filmRepository.getMostPopular(count);
+    public Collection<Film> getMostPopular(Integer count, Integer genreId, Integer year) {
+        Collection<Film> films;
+        if (genreId == 0 && year == null) {
+            films = filmRepository.getMostPopular(count);
+        } else if (year == null) {
+            films = filmRepository.getPopularFilmsByGenre(genreId);
+        } else if (genreId == 0) {
+            films = filmRepository.getPopularFilmsByYear(year);
+        } else {
+            films = filmRepository.getPopularFilmsByYearAndGenre(year, genreId);
+        }
+        return films;
     }
 
     @Override
