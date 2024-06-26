@@ -10,9 +10,7 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
-
 import org.springframework.stereotype.Repository;
-
 import ru.yandex.practicum.filmorate.exception.SaveDataException;
 import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
@@ -109,6 +107,7 @@ public class JdbcFilmRepository extends BaseJdbcRepository<Film> implements Film
         if (genres == null || genres.isEmpty()) {
             return;
         }
+
         String insertFilmGenresQuery = "INSERT INTO FILMS_GENRES (FILM_ID, GENRE_ID) VALUES (:filmId, :genreId);";
         List<MapSqlParameterSource> genreParams = genres.stream()
                 .map(genre -> new MapSqlParameterSource()
