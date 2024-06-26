@@ -12,6 +12,8 @@ import ru.yandex.practicum.filmorate.exception.SaveDataException;
 import ru.yandex.practicum.filmorate.model.Review;
 import ru.yandex.practicum.filmorate.repository.BaseJdbcRepository;
 
+import java.math.BigInteger;
+import java.time.Instant;
 import java.util.Collection;
 import java.util.Optional;
 
@@ -42,6 +44,7 @@ public class JdbcReviewRepository extends BaseJdbcRepository<Review> implements 
 
         if (id != null) {
             review.setReviewId(id);
+            addUserEvent(review.getUserId(), "ADD", review.getReviewId());
         } else {
             throw new SaveDataException("Не удалось сохранить данные:" + review);
         }
@@ -70,12 +73,20 @@ public class JdbcReviewRepository extends BaseJdbcRepository<Review> implements 
                 .addValue("reviewId", review.getReviewId());
         jdbc.update(sql, params);
 
+        addUserEvent(review.getUserId(), "UPDATE", review.getReviewId());
+
         return review;
     }
 
     @Override
     public void delete(long id) {
         final String sql = "DELETE FROM REVIEWS WHERE REVIEW_ID = :reviewId;";
+        Optional<Review> optionalReview = getById(id);
+
+        if (optionalReview.isPresent()) {
+            Review review = optionalReview.get();
+            addUserEvent(review.getUserId(), "REMOVE", id);
+        }
 
         jdbc.update(sql, new MapSqlParameterSource("reviewId", id));
     }
@@ -233,6 +244,20 @@ public class JdbcReviewRepository extends BaseJdbcRepository<Review> implements 
                 .addValue("reviewId", reviewId)
                 .addValue("useful", useful);
         jdbc.update("UPDATE REVIEWS SET USEFUL = :useful WHERE REVIEW_ID = :reviewId", parameterSource);
+    }
+
+    private void addUserEvent(long userId, String operation, long entityId) {
+        String sqlQuery = """
+                INSERT INTO USER_EVENTS (TIMESTAMP, USER_ID, EVENT_TYPE, OPERATION, ENTITY_ID)
+                VALUES (:timestamp, :userId, :eventType, :operation, :entityId);
+                """;
+        SqlParameterSource params = new MapSqlParameterSource()
+                .addValue("timestamp", BigInteger.valueOf(Instant.now().toEpochMilli()))
+                .addValue("userId", userId)
+                .addValue("eventType", "REVIEW")
+                .addValue("operation", operation)
+                .addValue("entityId", entityId);
+        jdbc.update(sqlQuery, params);
     }
 }
 

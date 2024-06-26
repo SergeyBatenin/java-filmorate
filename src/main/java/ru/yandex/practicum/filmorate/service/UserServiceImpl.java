@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.model.UserEvent;
 import ru.yandex.practicum.filmorate.repository.user.UserRepository;
 
 import java.util.Collection;
@@ -79,6 +80,12 @@ public class UserServiceImpl implements UserService {
     public Collection<Film> getFilmRecommendations(long userId) {
         checkUserExistence(userId, "FILM-RECOMMENDATIONS");
         return repository.getFilmRecommendations(userId);
+    }
+
+    @Override
+    public Collection<UserEvent> getUserFeed(long userId) {
+        checkUserExistence(userId, "GET-FEED");
+        return repository.getUserFeed(userId);
     }
 
     private void checkAndInitializeUserName(User user) {

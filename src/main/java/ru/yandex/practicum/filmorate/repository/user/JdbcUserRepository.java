@@ -11,9 +11,12 @@ import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.exception.SaveDataException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.model.UserEvent;
 import ru.yandex.practicum.filmorate.repository.BaseJdbcRepository;
 import ru.yandex.practicum.filmorate.repository.film.FilmMapper;
 
+import java.math.BigInteger;
+import java.time.Instant;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
@@ -105,6 +108,8 @@ public class JdbcUserRepository extends BaseJdbcRepository<User> implements User
                 """;
         jdbc.update(sqlQuery, Map.of("userId", userId, "friendId", friendId));
 
+        addUserEvent(userId, "ADD", friendId);
+
         boolean isExists = checkFriendship(userId, friendId);
 
         if (isExists) {
@@ -125,6 +130,8 @@ public class JdbcUserRepository extends BaseJdbcRepository<User> implements User
                 AND FRIEND_ID = :friendId;
                 """;
         int countUpdateRow = jdbc.update(removeFriendship, Map.of("userId", userId, "friendId", friendId));
+
+        addUserEvent(userId, "REMOVE", friendId);
 
         if (countUpdateRow != 0) {
             String updateMutualQuery = """
@@ -187,6 +194,17 @@ public class JdbcUserRepository extends BaseJdbcRepository<User> implements User
         return jdbc.query(sqlQuery, Map.of("userId", userId), new FilmMapper());
     }
 
+    @Override
+    public Collection<UserEvent> getUserFeed(long userId) {
+        String sqlQuery = """
+                SELECT *
+                FROM USER_EVENTS
+                WHERE USER_ID = :userId
+                """;
+        return jdbc.query(sqlQuery, Map.of("userId", userId), new UserEventMapper());
+    }
+
+
     private Boolean checkFriendship(long userId, long friendId) {
         String checkMutualQuery = """
                 SELECT EXISTS(
@@ -199,4 +217,19 @@ public class JdbcUserRepository extends BaseJdbcRepository<User> implements User
                 Map.of("userId", friendId, "friendId", userId),
                 Boolean.class);
     }
+
+    private void addUserEvent(long userId, String operation, long entityId) {
+        String sqlQuery = """
+                INSERT INTO USER_EVENTS (TIMESTAMP, USER_ID, EVENT_TYPE, OPERATION, ENTITY_ID)
+                VALUES (:timestamp, :userId, :eventType, :operation, :entityId);
+                """;
+        SqlParameterSource params = new MapSqlParameterSource()
+                .addValue("timestamp", BigInteger.valueOf(Instant.now().toEpochMilli()))
+                .addValue("userId", userId)
+                .addValue("eventType", "FRIEND")
+                .addValue("operation", operation)
+                .addValue("entityId", entityId);
+        jdbc.update(sqlQuery, params);
+    }
+
 }
