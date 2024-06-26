@@ -28,5 +28,5 @@ public interface UserRepository {
 
     Collection<Film> getFilmRecommendations(long userId);
 
-    Collection<UserEvent> getUserFeed(long userId);
+    Collection<UserEvent> getFeed(long userId);
 }

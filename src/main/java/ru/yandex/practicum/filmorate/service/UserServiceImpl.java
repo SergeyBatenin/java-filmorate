@@ -83,9 +83,9 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Collection<UserEvent> getUserFeed(long userId) {
+    public Collection<UserEvent> getFeed(long userId) {
         checkUserExistence(userId, "GET-FEED");
-        return repository.getUserFeed(userId);
+        return repository.getFeed(userId);
     }
 
     private void checkAndInitializeUserName(User user) {

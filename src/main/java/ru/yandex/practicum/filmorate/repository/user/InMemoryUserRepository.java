@@ -90,7 +90,7 @@ public class InMemoryUserRepository implements UserRepository {
     }
 
     @Override
-    public Collection<UserEvent> getUserFeed(long userId) {
+    public Collection<UserEvent> getFeed(long userId) {
         return Collections.emptyList();
     }
 }

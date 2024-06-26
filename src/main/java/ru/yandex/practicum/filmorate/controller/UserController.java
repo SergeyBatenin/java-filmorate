@@ -106,7 +106,7 @@ public class UserController {
     @GetMapping("/{userId}/feed")
     public Collection<UserEvent> getUserFeed(@PathVariable Long userId) {
         log.info("GET /users/{}/feed request", userId);
-        Collection<UserEvent> userEvents = userService.getUserFeed(userId);
+        Collection<UserEvent> userEvents = userService.getFeed(userId);
         log.info("GET /users/{}/feed response: {}", userId, userEvents);
         return userEvents;
     }
