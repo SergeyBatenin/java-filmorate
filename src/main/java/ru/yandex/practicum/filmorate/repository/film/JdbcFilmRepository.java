@@ -361,25 +361,14 @@ public class JdbcFilmRepository extends BaseJdbcRepository<Film> implements Film
                 GROUP BY F.FILM_ID, FG.GENRE_ID
                 ORDER BY LIKE_COUNT DESC;
                 """;
-        List<Film> films = jdbc.query(sqlQuery, Map.of("year", year), mapper);
+        LinkedHashMap<Long, Film> films = jdbc.query(sqlQuery, Map.of("year", year), mapper).stream()
+                .collect(Collectors.toMap(Film::getId, Function.identity(),
+                        (oldValue, newValue) -> oldValue,
+                        LinkedHashMap::new));
 
-        Map<Long, Film> idFilmsMap = films.stream()
-                .collect(Collectors.toMap(Film::getId, Function.identity()));
-        Map<Integer, Genre> genres = getIdsGenresMap();
+        initializeGenresAndDirectors(films);
 
-        jdbc.query("SELECT * FROM FILMS_GENRES WHERE FILM_ID IN (:filmsId);",
-                Map.of("filmsId", idFilmsMap.keySet()),
-                (rs, intRow) -> {
-                    Film film = null;
-                    while (rs.next()) {
-                        film = idFilmsMap.get(rs.getLong("FILM_ID"));
-                        Genre genre = genres.get(rs.getInt("GENRE_ID"));
-                        film.getGenres().add(genre);
-                    }
-                    return film;
-                });
-
-        return films;
+        return films.values();
     }
 
     @Override
@@ -403,25 +392,14 @@ public class JdbcFilmRepository extends BaseJdbcRepository<Film> implements Film
                 GROUP BY F.FILM_ID, FG.GENRE_ID
                 ORDER BY LIKE_COUNT DESC;
                 """;
-        List<Film> films = jdbc.query(sqlQuery, Map.of("genreId", genreId), mapper);
+        LinkedHashMap<Long, Film> films = jdbc.query(sqlQuery, Map.of("genreId", genreId), mapper).stream()
+                .collect(Collectors.toMap(Film::getId, Function.identity(),
+                        (oldValue, newValue) -> oldValue,
+                        LinkedHashMap::new));
 
-        Map<Long, Film> idFilmsMap = films.stream()
-                .collect(Collectors.toMap(Film::getId, Function.identity()));
-        Map<Integer, Genre> genres = getIdsGenresMap();
+        initializeGenresAndDirectors(films);
 
-        jdbc.query("SELECT * FROM FILMS_GENRES WHERE FILM_ID IN (:filmsId);",
-                Map.of("filmsId", idFilmsMap.keySet()),
-                (rs, intRow) -> {
-                    Film film = null;
-                    while (rs.next()) {
-                        film = idFilmsMap.get(rs.getLong("FILM_ID"));
-                        Genre genre = genres.get(rs.getInt("GENRE_ID"));
-                        film.getGenres().add(genre);
-                    }
-                    return film;
-                });
-
-        return films;
+        return films.values();
     }
 
     @Override
@@ -445,25 +423,14 @@ public class JdbcFilmRepository extends BaseJdbcRepository<Film> implements Film
                 GROUP BY F.FILM_ID, FG.GENRE_ID
                 ORDER BY LIKE_COUNT DESC;
                 """;
-        List<Film> films = jdbc.query(sqlQuery, Map.of("year", year, "genreId", genreId), mapper);
+        LinkedHashMap<Long, Film> films = jdbc.query(sqlQuery, Map.of("year",year,"genreId", genreId), mapper).stream()
+                .collect(Collectors.toMap(Film::getId, Function.identity(),
+                        (oldValue, newValue) -> oldValue,
+                        LinkedHashMap::new));
 
-        Map<Long, Film> idFilmsMap = films.stream()
-                .collect(Collectors.toMap(Film::getId, Function.identity()));
-        Map<Integer, Genre> genres = getIdsGenresMap();
+        initializeGenresAndDirectors(films);
 
-        jdbc.query("SELECT * FROM FILMS_GENRES WHERE FILM_ID IN (:filmsId);",
-                Map.of("filmsId", idFilmsMap.keySet()),
-                (rs, intRow) -> {
-                    Film film = null;
-                    while (rs.next()) {
-                        film = idFilmsMap.get(rs.getLong("FILM_ID"));
-                        Genre genre = genres.get(rs.getInt("GENRE_ID"));
-                        film.getGenres().add(genre);
-                    }
-                    return film;
-                });
-
-        return films;
+        return films.values();
     }
 
     @Override

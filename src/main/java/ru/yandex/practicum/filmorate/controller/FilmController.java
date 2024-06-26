@@ -90,7 +90,7 @@ public class FilmController {
 
     @GetMapping("/popular")
     public Collection<Film> getMostPopular(@RequestParam(defaultValue = "10", required = false) @Min(0) Integer count,
-                                           @RequestParam(defaultValue = "0") Integer genreId,
+                                           @RequestParam(required = false) Integer genreId,
                                            @RequestParam(required = false) @Min(1895) Integer year) {
         log.info("GET /films/popular?count={}, genreId={}, year={} request", count, genreId, year);
         Collection<Film> films = filmService.getMostPopular(count, genreId, year);
