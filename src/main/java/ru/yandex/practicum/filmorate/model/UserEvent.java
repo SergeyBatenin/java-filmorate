@@ -17,9 +17,9 @@ public class UserEvent {
     @NotNull
     private Long userId;
     @NotBlank
-    private String eventType;
+    private EventType eventType;
     @NotBlank
-    private String operation;
+    private Operation operation;
     @NotNull
     private Long entityId;
 }

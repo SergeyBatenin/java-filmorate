@@ -9,10 +9,11 @@ import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.exception.SaveDataException;
+import ru.yandex.practicum.filmorate.model.EventType;
+import ru.yandex.practicum.filmorate.model.Operation;
 import ru.yandex.practicum.filmorate.model.Review;
 import ru.yandex.practicum.filmorate.repository.BaseJdbcRepository;
 
-import java.math.BigInteger;
 import java.time.Instant;
 import java.util.Collection;
 import java.util.Optional;
@@ -44,7 +45,7 @@ public class JdbcReviewRepository extends BaseJdbcRepository<Review> implements 
 
         if (id != null) {
             review.setReviewId(id);
-            addUserEvent(review.getUserId(), "ADD", review.getReviewId());
+            addUserEvent(review.getUserId(), Operation.ADD, review.getReviewId());
         } else {
             throw new SaveDataException("Не удалось сохранить данные:" + review);
         }
@@ -73,7 +74,7 @@ public class JdbcReviewRepository extends BaseJdbcRepository<Review> implements 
                 .addValue("reviewId", review.getReviewId());
         jdbc.update(sql, params);
 
-        addUserEvent(review.getUserId(), "UPDATE", review.getReviewId());
+        addUserEvent(review.getUserId(), Operation.UPDATE, review.getReviewId());
 
         return review;
     }
@@ -85,7 +86,7 @@ public class JdbcReviewRepository extends BaseJdbcRepository<Review> implements 
 
         if (optionalReview.isPresent()) {
             Review review = optionalReview.get();
-            addUserEvent(review.getUserId(), "REMOVE", id);
+            addUserEvent(review.getUserId(), Operation.REMOVE, id);
         }
 
         jdbc.update(sql, new MapSqlParameterSource("reviewId", id));
@@ -246,16 +247,16 @@ public class JdbcReviewRepository extends BaseJdbcRepository<Review> implements 
         jdbc.update("UPDATE REVIEWS SET USEFUL = :useful WHERE REVIEW_ID = :reviewId", parameterSource);
     }
 
-    private void addUserEvent(long userId, String operation, long entityId) {
+    private void addUserEvent(long userId, Operation operation, long entityId) {
         String sqlQuery = """
                 INSERT INTO USER_EVENTS (TIMESTAMP, USER_ID, EVENT_TYPE, OPERATION, ENTITY_ID)
                 VALUES (:timestamp, :userId, :eventType, :operation, :entityId);
                 """;
         SqlParameterSource params = new MapSqlParameterSource()
-                .addValue("timestamp", BigInteger.valueOf(Instant.now().toEpochMilli()))
+                .addValue("timestamp", Instant.now().toEpochMilli())
                 .addValue("userId", userId)
-                .addValue("eventType", "REVIEW")
-                .addValue("operation", operation)
+                .addValue("eventType", EventType.REVIEW.name())
+                .addValue("operation", operation.name())
                 .addValue("entityId", entityId);
         jdbc.update(sqlQuery, params);
     }
