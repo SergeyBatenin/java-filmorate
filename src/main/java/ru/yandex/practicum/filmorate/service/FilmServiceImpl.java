@@ -17,8 +17,10 @@ import ru.yandex.practicum.filmorate.repository.like.LikeRepository;
 import ru.yandex.practicum.filmorate.repository.mpa.MpaRepository;
 import ru.yandex.practicum.filmorate.repository.user.UserRepository;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -106,6 +108,12 @@ public class FilmServiceImpl implements FilmService {
         checkUserExist(friendId, "COMMON-FILM-FRIEND");
 
         return filmRepository.getCommonFilms(userId, friendId);
+    }
+
+    @Override
+    public Collection<Film> search(String keyword, String params) {
+        Set<String> searchParams = Arrays.stream(params.split(",")).collect(Collectors.toSet());
+        return filmRepository.search(keyword.toLowerCase(), searchParams);
     }
 
     private void checkFilmMpa(Film film) {
