@@ -103,7 +103,7 @@ public class FilmServiceImpl implements FilmService {
             films = filmRepository.getMostPopular(count);
         } else if (genreId == null) {
             films = filmRepository.getPopularFilmsByYear(year);
-        } else if (year == null) {
+        } else if (genreRepository.getById(genreId).isPresent() && year == null) {
             films = filmRepository.getPopularFilmsByGenre(genreId);
         } else {
             films = filmRepository.getPopularFilmsByYearAndGenre(year, genreId);
