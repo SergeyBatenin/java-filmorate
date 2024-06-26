@@ -102,4 +102,13 @@ public class FilmController {
         log.info("GET /films/common?userId={}, friendId={} response", userId, friendId);
         return films;
     }
+
+    @GetMapping("/search")
+    public Collection<Film> search(@RequestParam(name = "query") String keyword,
+                                   @RequestParam(name = "by") String params) {
+        log.info("GET /films/search?query={}, by={} request", keyword, params);
+        Collection<Film> films = filmService.search(keyword, params);
+        log.info("GET /films/search?query={}, by={} response: {}", keyword, params, films.size());
+        return films;
+    }
 }

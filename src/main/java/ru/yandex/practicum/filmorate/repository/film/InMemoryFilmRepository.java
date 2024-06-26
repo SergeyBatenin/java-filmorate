@@ -78,4 +78,9 @@ public class InMemoryFilmRepository implements FilmRepository {
     public Collection<Film> getCommonFilms(long userId, long friendId) {
         return Collections.emptyList();
     }
+
+    @Override
+    public Collection<Film> search(String keyword, Set<String> searchParams) {
+        return Collections.emptyList();
+    }
 }

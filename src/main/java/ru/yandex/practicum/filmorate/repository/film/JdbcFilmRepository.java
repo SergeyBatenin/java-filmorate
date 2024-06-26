@@ -380,4 +380,33 @@ public class JdbcFilmRepository extends BaseJdbcRepository<Film> implements Film
 
         return filmMap.values();
     }
+
+    @Override
+    public Collection<Film> search(String keyword, Set<String> searchParams) {
+        String searchQueryPattern = """
+                SELECT f.FILM_ID, F.NAME, F.DESCRIPTION, F.RELEASE_DATE, F.DURATION, F.MPA_ID, M.NAME as MPA_NAME
+                    FROM FILMS F
+                    JOIN MPA M ON M.MPA_ID = F.MPA_ID
+                    LEFT JOIN FILMS_DIRECTORS FD ON FD.FILM_ID = F.FILM_ID
+                    LEFT JOIN DIRECTORS D ON D.DIRECTOR_ID = FD.DIRECTOR_ID
+                    WHERE%s;""";
+
+        String whereCondition = "";
+        if (searchParams.contains("title")) {
+            whereCondition = " F.NAME ILIKE '%" + keyword + "%'";
+            if (searchParams.size() == 2) {
+                whereCondition += " OR";
+            }
+        }
+        if (searchParams.contains("director")) {
+            whereCondition += " D.NAME ILIKE '%" + keyword + "%'";
+        }
+        String searchQuery = String.format(searchQueryPattern, whereCondition);
+
+        Map<Long, Film> films = jdbc.query(searchQuery, mapper).stream()
+                .collect(Collectors.toMap(Film::getId, Function.identity()));
+
+        initializeGenresAndDirectors(films);
+        return films.values();
+    }
 }
