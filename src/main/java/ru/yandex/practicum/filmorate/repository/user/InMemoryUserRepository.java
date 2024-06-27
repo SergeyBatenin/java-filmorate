@@ -1,7 +1,6 @@
 package ru.yandex.practicum.filmorate.repository.user;
 
 import org.springframework.stereotype.Repository;
-import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.model.UserEvent;
 
@@ -82,11 +81,6 @@ public class InMemoryUserRepository implements UserRepository {
         return commonFriendIds.stream()
                 .map(users::get)
                 .toList();
-    }
-
-    @Override
-    public Collection<Film> getFilmRecommendations(long userId) {
-        return Collections.emptyList();
     }
 
     @Override

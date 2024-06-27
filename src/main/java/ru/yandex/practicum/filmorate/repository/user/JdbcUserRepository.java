@@ -10,12 +10,10 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.exception.SaveDataException;
 import ru.yandex.practicum.filmorate.model.EventType;
-import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Operation;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.model.UserEvent;
 import ru.yandex.practicum.filmorate.repository.BaseJdbcRepository;
-import ru.yandex.practicum.filmorate.repository.film.FilmMapper;
 
 import java.time.Instant;
 import java.util.Collection;
@@ -165,34 +163,6 @@ public class JdbcUserRepository extends BaseJdbcRepository<User> implements User
 
         userFriends.retainAll(friendFriends);
         return userFriends;
-    }
-
-    @Override
-    public Collection<Film> getFilmRecommendations(long userId) {
-        String sqlQuery = """
-                SELECT f.*,
-                    m.NAME as MPA_NAME,
-                FROM FILMS f
-                JOIN LIKES l ON f.FILM_ID = l.FILM_ID
-                LEFT JOIN MPA m ON m.MPA_ID = f.MPA_ID
-                WHERE l.USER_ID IN (
-                    SELECT l.USER_ID
-                    FROM LIKES l
-                    WHERE l.FILM_ID IN (
-                        SELECT l.FILM_ID
-                        FROM LIKES l
-                        WHERE l.USER_ID = :userId
-                    )
-                    AND l.USER_ID != :userId
-                )
-                AND f.FILM_ID NOT IN (
-                    SELECT l.FILM_ID
-                    FROM LIKES l
-                    WHERE l.USER_ID = :userId
-                )
-                """;
-
-        return jdbc.query(sqlQuery, Map.of("userId", userId), new FilmMapper());
     }
 
     @Override

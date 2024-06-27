@@ -506,4 +506,35 @@ public class JdbcFilmRepository extends BaseJdbcRepository<Film> implements Film
         initializeGenresAndDirectors(films);
         return films.values();
     }
+
+    @Override
+    public Collection<Film> getFilmRecommendations(long userId) {
+        String sqlQuery = """
+                SELECT f.*,
+                    m.NAME as MPA_NAME,
+                FROM FILMS f
+                JOIN LIKES l ON f.FILM_ID = l.FILM_ID
+                LEFT JOIN MPA m ON m.MPA_ID = f.MPA_ID
+                WHERE l.USER_ID IN (
+                    SELECT l.USER_ID
+                    FROM LIKES l
+                    WHERE l.FILM_ID IN (
+                        SELECT l.FILM_ID
+                        FROM LIKES l
+                        WHERE l.USER_ID = :userId
+                    )
+                    AND l.USER_ID != :userId
+                )
+                AND f.FILM_ID NOT IN (
+                    SELECT l.FILM_ID
+                    FROM LIKES l
+                    WHERE l.USER_ID = :userId
+                )
+                """;
+        Map<Long, Film> films = jdbc.query(sqlQuery, Map.of("userId", userId), new FilmMapper()).stream()
+                .collect(Collectors.toMap(Film::getId, Function.identity()));
+        initializeGenresAndDirectors(films);
+
+        return films.values();
+    }
 }
