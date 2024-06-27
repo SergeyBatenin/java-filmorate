@@ -483,7 +483,8 @@ public class JdbcFilmRepository extends BaseJdbcRepository<Film> implements Film
                     JOIN MPA M ON M.MPA_ID = F.MPA_ID
                     LEFT JOIN FILMS_DIRECTORS FD ON FD.FILM_ID = F.FILM_ID
                     LEFT JOIN DIRECTORS D ON D.DIRECTOR_ID = FD.DIRECTOR_ID
-                    WHERE%s;""";
+                    WHERE%s
+                    ORDER BY F.FILM_ID DESC;""";
 
         String whereCondition = "";
         if (searchParams.contains("title")) {
@@ -497,8 +498,10 @@ public class JdbcFilmRepository extends BaseJdbcRepository<Film> implements Film
         }
         String searchQuery = String.format(searchQueryPattern, whereCondition);
 
-        Map<Long, Film> films = jdbc.query(searchQuery, mapper).stream()
-                .collect(Collectors.toMap(Film::getId, Function.identity()));
+        LinkedHashMap<Long, Film> films = jdbc.query(searchQuery, mapper).stream()
+                .collect(Collectors.toMap(Film::getId, Function.identity(),
+                        (oldValue, newValue) -> oldValue,
+                        LinkedHashMap::new));
 
         initializeGenresAndDirectors(films);
         return films.values();
