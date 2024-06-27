@@ -252,14 +252,14 @@ public class JdbcFilmRepository extends BaseJdbcRepository<Film> implements Film
                     F.DURATION,
                     M.MPA_ID,
                     M.NAME as MPA_NAME,
-                    COUNT(*) as film_likes
+                    COUNT(L.FILM_ID) as LIKES
                 FROM FILMS F
                 JOIN MPA M ON M.MPA_ID = F.MPA_ID
                 JOIN FILMS_DIRECTORS FD ON FD.FILM_ID = F.FILM_ID
-                JOIN LIKES L ON L.FILM_ID = F.FILM_ID
+                LEFT JOIN LIKES L ON L.FILM_ID = F.FILM_ID
                 WHERE FD.DIRECTOR_ID = :directorId
                 GROUP BY F.FILM_ID
-                ORDER BY film_likes DESC""";
+                ORDER BY LIKES DESC""";
         return jdbc.query(getFilmsByLikes, Map.of("directorId", directorId), mapper).stream()
                 .collect(Collectors.toMap(Film::getId, Function.identity(),
                         (oldValue, newValue) -> oldValue,
