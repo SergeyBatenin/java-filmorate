@@ -59,23 +59,19 @@ public class JdbcReviewRepository extends BaseJdbcRepository<Review> implements 
                 UPDATE REVIEWS
                 SET
                     CONTENT = :content,
-                    USEFUL = :useful,
                     IS_POSITIVE = :isPositive
                 WHERE REVIEW_ID = :reviewId;
                 """;
 
         SqlParameterSource params = new MapSqlParameterSource()
-                .addValue("filmId", review.getFilmId())
-                .addValue("userId", review.getUserId())
                 .addValue("content", review.getContent())
-                .addValue("useful", review.getUseful())
                 .addValue("isPositive", review.getIsPositive())
                 .addValue("reviewId", review.getReviewId());
         jdbc.update(sql, params);
 
         addUserEvent(review.getUserId(), Operation.UPDATE, review.getReviewId());
 
-        return review;
+        return getById(review.getReviewId()).get();
     }
 
     @Override
@@ -109,6 +105,7 @@ public class JdbcReviewRepository extends BaseJdbcRepository<Review> implements 
                 SELECT *
                 FROM REVIEWS
                 WHERE FILM_ID = :filmId
+                ORDER BY USEFUL DESC
                 LIMIT :count;
                 """;
 
@@ -123,6 +120,7 @@ public class JdbcReviewRepository extends BaseJdbcRepository<Review> implements 
         final String sql = """
                 SELECT *
                 FROM REVIEWS
+                ORDER BY USEFUL DESC
                 LIMIT :count;
                 """;
 
