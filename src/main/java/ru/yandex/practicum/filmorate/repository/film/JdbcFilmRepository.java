@@ -99,7 +99,7 @@ public class JdbcFilmRepository extends BaseJdbcRepository<Film> implements Film
 
         insertFilmGenres(film);
         insertFilmDirectors(film);
-        return film;
+        return getById(film.getId()).get();
     }
 
     private void insertFilmGenres(Film film) {
