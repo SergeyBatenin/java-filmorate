@@ -322,12 +322,12 @@ public class JdbcFilmRepository extends BaseJdbcRepository<Film> implements Film
                     F.DURATION,
                     F.MPA_ID,
                     M.NAME as MPA_NAME,
-                    COUNT(*) as total
+                    COUNT(L.FILM_ID) AS LIKE_COUNT
                 FROM FILMS F
                 LEFT JOIN LIKES L ON L.FILM_ID = F.FILM_ID
                 JOIN MPA M ON M.MPA_ID = F.MPA_ID
                 GROUP BY F.FILM_ID
-                ORDER BY total DESC, F.FILM_ID
+                ORDER BY LIKE_COUNT DESC, F.FILM_ID
                 LIMIT :count;
                 """;
         LinkedHashMap<Long, Film> films = jdbc.query(sqlQuery, Map.of("count", count), mapper).stream()
