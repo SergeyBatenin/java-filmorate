@@ -93,7 +93,7 @@ public class FilmController {
                                            @RequestParam(required = false) Integer genreId,
                                            @RequestParam(required = false) @Min(1895) Integer year) {
         log.info("GET /films/popular?count={}, genreId={}, year={} request", count, genreId, year);
-        Collection<Film> films = filmService.getMostPopular(count, genreId, year);
+        Collection<Film> films = filmService.getMostPopular(count, genreId,  year);
         log.info("GET /films/popular?count={}, genreId={}, year={} response: {} ", count, genreId, year, films.size());
         return films;
     }
