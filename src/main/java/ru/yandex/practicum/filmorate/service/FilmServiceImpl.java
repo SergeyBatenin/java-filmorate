@@ -97,9 +97,22 @@ public class FilmServiceImpl implements FilmService {
         likeRepository.unlike(filmId, userId);
     }
 
-    @Override
-    public Collection<Film> getMostPopular(int count) {
-        return filmRepository.getMostPopular(count);
+    public Collection<Film> getMostPopular(Integer count, Integer genreId, Integer year) {
+        Collection<Film> films;
+        if (genreId == null && year == null) {
+            films = filmRepository.getMostPopular(count);
+        } else if (genreId == null) {
+            films = filmRepository.getPopularFilmsByYear(year);
+        } else if (year == null) {
+            genreRepository.getById(genreId).orElseThrow(() -> {
+                log.info("GET-MOST-POPULAR. Жанр с id={} не найден", genreId);
+                return new NotFoundException("Жанр с id=" + genreId + " не существует");
+            });
+            films = filmRepository.getPopularFilmsByGenre(genreId);
+        } else {
+            films = filmRepository.getPopularFilmsByYearAndGenre(year, genreId);
+        }
+        return films;
     }
 
     @Override

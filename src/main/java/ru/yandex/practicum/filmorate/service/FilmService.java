@@ -17,7 +17,7 @@ public interface FilmService {
 
     void unlike(long filmId, long userId);
 
-    Collection<Film> getMostPopular(int count);
+    Collection<Film> getMostPopular(Integer count, Integer genreId, Integer year);
 
     Film getById(long filmId);
 
