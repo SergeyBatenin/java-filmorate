@@ -57,8 +57,7 @@ public class JdbcReviewRepository extends BaseJdbcRepository<Review> implements 
     public Review update(Review review) {
         final String sql = """
                 UPDATE REVIEWS
-                SET FILM_ID = :filmId,
-                    USER_ID = :userId,
+                SET
                     CONTENT = :content,
                     USEFUL = :useful,
                     IS_POSITIVE = :isPositive
