@@ -103,9 +103,14 @@ public class FilmServiceImpl implements FilmService {
             films = filmRepository.getMostPopular(count);
         } else if (genreId == null) {
             films = filmRepository.getPopularFilmsByYear(year);
-        } else if (genreRepository.getById(genreId).isPresent() && year == null) {
+        } else if (year == null) {
+            genreRepository.getById(genreId).orElseThrow(() -> {
+                log.info("GET-MOST-POPULAR. Жанр с id={} не найден", genreId);
+                return new NotFoundException("Жанр с id=" + genreId + " не существует");
+            });
             films = filmRepository.getPopularFilmsByGenre(genreId);
-        } else {
+        }
+        else {
             films = filmRepository.getPopularFilmsByYearAndGenre(year, genreId);
         }
         return films;
