@@ -30,4 +30,6 @@ public interface FilmRepository {
     Collection<Film> getPopularFilmsByGenre(int genreId);
 
     Collection<Film> getPopularFilmsByYearAndGenre(int year, int genreId);
+
+    Collection<Film> getFilmRecommendations(long userId);
 }

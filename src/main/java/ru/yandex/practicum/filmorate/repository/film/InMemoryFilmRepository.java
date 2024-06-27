@@ -98,4 +98,9 @@ public class InMemoryFilmRepository implements FilmRepository {
     public Collection<Film> getPopularFilmsByYearAndGenre(int year, int genreId) {
         return Collections.emptyList();
     }
+
+    @Override
+    public Collection<Film> getFilmRecommendations(long userId) {
+        return Collections.emptyList();
+    }
 }

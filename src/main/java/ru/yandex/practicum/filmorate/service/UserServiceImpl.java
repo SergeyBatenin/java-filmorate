@@ -7,6 +7,7 @@ import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.model.UserEvent;
+import ru.yandex.practicum.filmorate.repository.film.FilmRepository;
 import ru.yandex.practicum.filmorate.repository.user.UserRepository;
 
 import java.util.Collection;
@@ -16,6 +17,7 @@ import java.util.Collection;
 @Slf4j
 public class UserServiceImpl implements UserService {
     private final UserRepository repository;
+    private final FilmRepository filmRepository;
 
     @Override
     public Collection<User> getAll() {
@@ -79,7 +81,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public Collection<Film> getFilmRecommendations(long userId) {
         checkUserExistence(userId, "FILM-RECOMMENDATIONS");
-        return repository.getFilmRecommendations(userId);
+        return filmRepository.getFilmRecommendations(userId);
     }
 
     @Override
