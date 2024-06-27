@@ -109,8 +109,7 @@ public class FilmServiceImpl implements FilmService {
                 return new NotFoundException("Жанр с id=" + genreId + " не существует");
             });
             films = filmRepository.getPopularFilmsByGenre(genreId);
-        }
-        else {
+        } else {
             films = filmRepository.getPopularFilmsByYearAndGenre(year, genreId);
         }
         return films;
