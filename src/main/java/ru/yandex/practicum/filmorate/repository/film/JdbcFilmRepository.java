@@ -483,8 +483,10 @@ public class JdbcFilmRepository extends BaseJdbcRepository<Film> implements Film
                     JOIN MPA M ON M.MPA_ID = F.MPA_ID
                     LEFT JOIN FILMS_DIRECTORS FD ON FD.FILM_ID = F.FILM_ID
                     LEFT JOIN DIRECTORS D ON D.DIRECTOR_ID = FD.DIRECTOR_ID
+                    LEFT JOIN LIKES L ON L.FILM_ID = F.FILM_ID
                     WHERE%s
-                    ORDER BY F.FILM_ID DESC;""";
+                    GROUP BY F.FILM_ID
+                    ORDER BY COUNT(L.USER_ID) DESC;""";
 
         String whereCondition = "";
         if (searchParams.contains("title")) {
