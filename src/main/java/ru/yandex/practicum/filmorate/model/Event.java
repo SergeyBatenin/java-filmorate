@@ -10,7 +10,7 @@ import lombok.Data;
  */
 @Data
 @Builder
-public class UserEvent {
+public class Event {
     private Long eventId;
     @NotNull
     private Long timestamp;

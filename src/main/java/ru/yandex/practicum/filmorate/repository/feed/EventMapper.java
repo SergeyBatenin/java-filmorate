@@ -1,17 +1,19 @@
-package ru.yandex.practicum.filmorate.repository.user;
+package ru.yandex.practicum.filmorate.repository.feed;
 
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.model.EventType;
 import ru.yandex.practicum.filmorate.model.Operation;
-import ru.yandex.practicum.filmorate.model.UserEvent;
+import ru.yandex.practicum.filmorate.model.Event;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public class UserEventMapper implements RowMapper<UserEvent> {
+@Component
+public class EventMapper implements RowMapper<Event> {
     @Override
-    public UserEvent mapRow(ResultSet rs, int rowNum) throws SQLException {
-        return UserEvent.builder()
+    public Event mapRow(ResultSet rs, int rowNum) throws SQLException {
+        return Event.builder()
                 .eventId(rs.getLong("EVENT_ID"))
                 .timestamp(rs.getLong("TIMESTAMP"))
                 .userId(rs.getLong("USER_ID"))

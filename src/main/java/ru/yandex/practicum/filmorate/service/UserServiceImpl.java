@@ -4,9 +4,12 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
+import ru.yandex.practicum.filmorate.model.Event;
+import ru.yandex.practicum.filmorate.model.EventType;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Operation;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.model.UserEvent;
+import ru.yandex.practicum.filmorate.repository.feed.FeedRepository;
 import ru.yandex.practicum.filmorate.repository.film.FilmRepository;
 import ru.yandex.practicum.filmorate.repository.user.UserRepository;
 
@@ -18,6 +21,7 @@ import java.util.Collection;
 public class UserServiceImpl implements UserService {
     private final UserRepository repository;
     private final FilmRepository filmRepository;
+    private final FeedRepository feedRepository;
 
     @Override
     public Collection<User> getAll() {
@@ -56,6 +60,7 @@ public class UserServiceImpl implements UserService {
         checkUserExistence(userId, "ADD-FRIEND-USER");
         checkUserExistence(friendId, "ADD-FRIEND-FRIEND");
         repository.addFriend(userId, friendId);
+        feedRepository.saveEvent(userId, Operation.ADD, EventType.FRIEND, friendId);
     }
 
     @Override
@@ -63,6 +68,7 @@ public class UserServiceImpl implements UserService {
         checkUserExistence(userId, "DELETE-FRIEND-USER");
         checkUserExistence(friendId, "DElETE-FRIEND-FRIEND");
         repository.deleteFriend(userId, friendId);
+        feedRepository.saveEvent(userId, Operation.REMOVE, EventType.FRIEND, friendId);
     }
 
     @Override
@@ -85,7 +91,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Collection<UserEvent> getFeed(long userId) {
+    public Collection<Event> getFeed(long userId) {
         checkUserExistence(userId, "GET-FEED");
         return repository.getFeed(userId);
     }

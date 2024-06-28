@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.model.UserEvent;
+import ru.yandex.practicum.filmorate.model.Event;
 import ru.yandex.practicum.filmorate.service.UserService;
 
 import java.util.Collection;
@@ -104,11 +104,11 @@ public class UserController {
     }
 
     @GetMapping("/{userId}/feed")
-    public Collection<UserEvent> getUserFeed(@PathVariable Long userId) {
+    public Collection<Event> getUserFeed(@PathVariable Long userId) {
         log.info("GET /users/{}/feed request", userId);
-        Collection<UserEvent> userEvents = userService.getFeed(userId);
-        log.info("GET /users/{}/feed response: {}", userId, userEvents);
-        return userEvents;
+        Collection<Event> events = userService.getFeed(userId);
+        log.info("GET /users/{}/feed response: {}", userId, events);
+        return events;
     }
 
 }

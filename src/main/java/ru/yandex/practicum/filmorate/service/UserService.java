@@ -2,7 +2,7 @@ package ru.yandex.practicum.filmorate.service;
 
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.model.UserEvent;
+import ru.yandex.practicum.filmorate.model.Event;
 
 import java.util.Collection;
 
@@ -27,5 +27,5 @@ public interface UserService {
 
     Collection<Film> getFilmRecommendations(long userId);
 
-    Collection<UserEvent> getFeed(long userId);
+    Collection<Event> getFeed(long userId);
 }

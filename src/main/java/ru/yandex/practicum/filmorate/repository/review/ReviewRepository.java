@@ -10,7 +10,7 @@ public interface ReviewRepository {
 
     Review update(Review review);
 
-    void delete(long id);
+    Optional<Review> delete(long id);
 
     Optional<Review> getById(long id);
 

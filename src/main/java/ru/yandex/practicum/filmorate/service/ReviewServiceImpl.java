@@ -4,12 +4,16 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
+import ru.yandex.practicum.filmorate.model.EventType;
+import ru.yandex.practicum.filmorate.model.Operation;
 import ru.yandex.practicum.filmorate.model.Review;
+import ru.yandex.practicum.filmorate.repository.feed.FeedRepository;
 import ru.yandex.practicum.filmorate.repository.film.FilmRepository;
 import ru.yandex.practicum.filmorate.repository.review.ReviewRepository;
 import ru.yandex.practicum.filmorate.repository.user.UserRepository;
 
 import java.util.Collection;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -18,12 +22,15 @@ public class ReviewServiceImpl implements ReviewService {
     private final ReviewRepository reviewRepository;
     private final UserRepository userRepository;
     private final FilmRepository filmRepository;
+    private final FeedRepository feedRepository;
 
     @Override
     public Review create(Review review) {
         checkFilmExist(review.getFilmId(), "CREATE");
         checkUserExist(review.getUserId(), "CREATE");
-        return reviewRepository.create(review);
+        Review createdReview = reviewRepository.create(review);
+        feedRepository.saveEvent(createdReview.getUserId(), Operation.ADD, EventType.REVIEW, createdReview.getReviewId());
+        return createdReview;
     }
 
     @Override
@@ -31,12 +38,19 @@ public class ReviewServiceImpl implements ReviewService {
         checkReviewExist(review.getReviewId(), "UPDATE");
         checkFilmExist(review.getFilmId(), "UPDATE");
         checkUserExist(review.getUserId(), "UPDATE");
-        return reviewRepository.update(review);
+        Review updatedReview = reviewRepository.update(review);
+        feedRepository.saveEvent(updatedReview.getUserId(), Operation.UPDATE, EventType.REVIEW, updatedReview.getReviewId());
+        return updatedReview;
     }
 
     @Override
     public void delete(Long reviewId) {
-        reviewRepository.delete(reviewId);
+        Optional<Review> deleteReviewOpt = reviewRepository.delete(reviewId);
+
+        if (deleteReviewOpt.isPresent()) {
+            Review review = deleteReviewOpt.get();
+            feedRepository.saveEvent(review.getUserId(), Operation.REMOVE, EventType.REVIEW, reviewId);
+        }
     }
 
     @Override
