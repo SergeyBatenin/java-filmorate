@@ -2,7 +2,7 @@ package ru.yandex.practicum.filmorate.repository.user;
 
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.model.UserEvent;
+import ru.yandex.practicum.filmorate.model.Event;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -84,7 +84,7 @@ public class InMemoryUserRepository implements UserRepository {
     }
 
     @Override
-    public Collection<UserEvent> getFeed(long userId) {
+    public Collection<Event> getFeed(long userId) {
         return Collections.emptyList();
     }
 }

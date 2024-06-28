@@ -9,13 +9,11 @@ import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.exception.SaveDataException;
-import ru.yandex.practicum.filmorate.model.EventType;
-import ru.yandex.practicum.filmorate.model.Operation;
+import ru.yandex.practicum.filmorate.model.Event;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.model.UserEvent;
 import ru.yandex.practicum.filmorate.repository.BaseJdbcRepository;
+import ru.yandex.practicum.filmorate.repository.feed.EventMapper;
 
-import java.time.Instant;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
@@ -107,8 +105,6 @@ public class JdbcUserRepository extends BaseJdbcRepository<User> implements User
                 """;
         jdbc.update(sqlQuery, Map.of("userId", userId, "friendId", friendId));
 
-        addUserEvent(userId, Operation.ADD, friendId);
-
         boolean isExists = checkFriendship(userId, friendId);
 
         if (isExists) {
@@ -129,8 +125,6 @@ public class JdbcUserRepository extends BaseJdbcRepository<User> implements User
                 AND FRIEND_ID = :friendId;
                 """;
         int countUpdateRow = jdbc.update(removeFriendship, Map.of("userId", userId, "friendId", friendId));
-
-        addUserEvent(userId, Operation.REMOVE, friendId);
 
         if (countUpdateRow != 0) {
             String updateMutualQuery = """
@@ -166,13 +160,13 @@ public class JdbcUserRepository extends BaseJdbcRepository<User> implements User
     }
 
     @Override
-    public Collection<UserEvent> getFeed(long userId) {
+    public Collection<Event> getFeed(long userId) {
         String sqlQuery = """
                 SELECT *
                 FROM USER_EVENTS
                 WHERE USER_ID = :userId
                 """;
-        return jdbc.query(sqlQuery, Map.of("userId", userId), new UserEventMapper());
+        return jdbc.query(sqlQuery, Map.of("userId", userId), new EventMapper());
     }
 
 
@@ -188,19 +182,4 @@ public class JdbcUserRepository extends BaseJdbcRepository<User> implements User
                 Map.of("userId", friendId, "friendId", userId),
                 Boolean.class);
     }
-
-    private void addUserEvent(long userId, Operation operation, long entityId) {
-        String sqlQuery = """
-                INSERT INTO USER_EVENTS (TIMESTAMP, USER_ID, EVENT_TYPE, OPERATION, ENTITY_ID)
-                VALUES (:timestamp, :userId, :eventType, :operation, :entityId);
-                """;
-        SqlParameterSource params = new MapSqlParameterSource()
-                .addValue("timestamp", Instant.now().toEpochMilli())
-                .addValue("userId", userId)
-                .addValue("eventType", EventType.FRIEND.name())
-                .addValue("operation", operation.name())
-                .addValue("entityId", entityId);
-        jdbc.update(sqlQuery, params);
-    }
-
 }

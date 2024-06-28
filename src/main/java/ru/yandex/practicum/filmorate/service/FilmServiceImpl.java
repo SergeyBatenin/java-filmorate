@@ -8,9 +8,12 @@ import ru.yandex.practicum.filmorate.exception.GenreNotExistsException;
 import ru.yandex.practicum.filmorate.exception.MpaNotExistsException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Director;
+import ru.yandex.practicum.filmorate.model.EventType;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
+import ru.yandex.practicum.filmorate.model.Operation;
 import ru.yandex.practicum.filmorate.repository.director.DirectorRepository;
+import ru.yandex.practicum.filmorate.repository.feed.FeedRepository;
 import ru.yandex.practicum.filmorate.repository.film.FilmRepository;
 import ru.yandex.practicum.filmorate.repository.genre.GenreRepository;
 import ru.yandex.practicum.filmorate.repository.like.LikeRepository;
@@ -32,6 +35,7 @@ public class FilmServiceImpl implements FilmService {
     private final GenreRepository genreRepository;
     private final LikeRepository likeRepository;
     private final DirectorRepository directorRepository;
+    private final FeedRepository feedRepository;
 
     @Override
     public Collection<Film> getAll() {
@@ -87,6 +91,7 @@ public class FilmServiceImpl implements FilmService {
         checkFilmExist(filmId, "LIKE-FILM");
 
         likeRepository.like(filmId, userId);
+        feedRepository.saveEvent(userId, Operation.ADD, EventType.LIKE, filmId);
     }
 
     @Override
@@ -95,6 +100,7 @@ public class FilmServiceImpl implements FilmService {
         checkFilmExist(filmId, "UNLIKE-FILM");
 
         likeRepository.unlike(filmId, userId);
+        feedRepository.saveEvent(userId, Operation.REMOVE, EventType.LIKE, filmId);
     }
 
     public Collection<Film> getMostPopular(Integer count, Integer genreId, Integer year) {
