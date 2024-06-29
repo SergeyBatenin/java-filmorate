@@ -1,11 +1,9 @@
 package ru.yandex.practicum.filmorate.service;
 
+import jakarta.persistence.criteria.CriteriaBuilder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.exception.DirectorNotExistsException;
-import ru.yandex.practicum.filmorate.exception.GenreNotExistsException;
-import ru.yandex.practicum.filmorate.exception.MpaNotExistsException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.EventType;
@@ -22,6 +20,7 @@ import ru.yandex.practicum.filmorate.repository.user.UserRepository;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -140,7 +139,7 @@ public class FilmServiceImpl implements FilmService {
         mpaRepository.getById(mapId)
                 .orElseThrow(() -> {
                     log.debug("CHECK MpaFilm {}. Рейтинг с id={} не найден", film, mapId);
-                    return new MpaNotExistsException("Рейтинг с id=" + mapId + " не существует");
+                    return new NotFoundException("Рейтинг с id=" + mapId + " не существует");
                 });
     }
 
@@ -150,11 +149,15 @@ public class FilmServiceImpl implements FilmService {
             return;
         }
 
-        Collection<Genre> allGenres = genreRepository.getAll();
-        boolean isContains = allGenres.containsAll(genres);
-        if (!isContains) {
-            log.debug("CHECK FilmGenres {}. Обнаружен несуществующий жанр в списке {}", film, allGenres);
-            throw new GenreNotExistsException("Фильм содержит не существующий жанр");
+        List<Integer> genreIds = genres.stream()
+                .map(Genre::getId)
+                .collect(Collectors.toList());
+
+        int matchingGenresCount = genreRepository.countMatchingGenres(genreIds);
+
+        if (matchingGenresCount != genres.size()) {
+            log.debug("CHECK FilmGenres {}. Обнаружен несуществующий жанр в списке {}", film, genres);
+            throw new NotFoundException("Фильм содержит несуществующий жанр");
         }
     }
 
@@ -164,11 +167,14 @@ public class FilmServiceImpl implements FilmService {
             return;
         }
 
-        Collection<Director> allDirectors = directorRepository.getAll();
-        boolean isContains = allDirectors.containsAll(directors);
-        if (!isContains) {
-            log.debug("CHECK FilmDirectors {}. Обнаружен несуществующий режиссер в списке {}", film, allDirectors);
-            throw new DirectorNotExistsException("Фильм содержит не существующего режиссера");
+        List<Integer> directorIds = directors.stream()
+                .map(Director::getId)
+                .collect(Collectors.toList());
+
+        int matchingDirectorsCount = directorRepository.countMatchingDirectors(directorIds);
+        if (matchingDirectorsCount != directors.size()) {
+            log.debug("CHECK FilmDirectors {}. Обнаружен несуществующий режиссер в списке {}", film, directors);
+            throw new NotFoundException("Фильм содержит не существующего режиссера");
         }
     }
 
