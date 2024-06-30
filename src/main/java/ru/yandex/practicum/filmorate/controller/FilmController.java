@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.controller;
 
+import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
@@ -33,6 +34,14 @@ public class FilmController {
         return films;
     }
 
+    @GetMapping("/director/{directorId}")
+    public Collection<Film> getByDirector(@PathVariable int directorId, @RequestParam String sortBy) {
+        log.info("GET /films/director/{}/{} request", directorId, sortBy);
+        Collection<Film> films = filmService.getByDirector(directorId, sortBy);
+        log.info("GET /films/director/{}/{} response: {}", directorId, sortBy, films.size());
+        return films;
+    }
+
     @GetMapping("/{filmId}")
     public Film getById(@PathVariable long filmId) {
         log.info("GET /films{} request", filmId);
@@ -58,6 +67,13 @@ public class FilmController {
         return updatedFilm;
     }
 
+    @DeleteMapping("/{id}")
+    public void delete(@PathVariable long id) {
+        log.info("DELETE /films/{} request", id);
+        filmService.delete(id);
+        log.info("DELETE /films/{} response: success", id);
+    }
+
     @PutMapping("/{id}/like/{userId}")
     public void like(@PathVariable long id, @PathVariable long userId) {
         log.info("PUT /films/{}/like/{} request", id, userId);
@@ -73,10 +89,29 @@ public class FilmController {
     }
 
     @GetMapping("/popular")
-    public Collection<Film> getMostPopular(@RequestParam(defaultValue = "10") int count) {
-        log.info("GET /films/popular?count={} request", count);
-        Collection<Film> films = filmService.getMostPopular(count);
-        log.info("GET /films/popular?count={} response: {}", count, films.size());
+    public Collection<Film> getMostPopular(@RequestParam(defaultValue = "10") @Min(0) Integer count,
+                                           @RequestParam(required = false) Integer genreId,
+                                           @RequestParam(required = false) @Min(1895) Integer year) {
+        log.info("GET /films/popular?count={}, genreId={}, year={} request", count, genreId, year);
+        Collection<Film> films = filmService.getMostPopular(count, genreId, year);
+        log.info("GET /films/popular?count={}, genreId={}, year={} response: {} ", count, genreId, year, films.size());
+        return films;
+    }
+
+    @GetMapping("/common")
+    public Collection<Film> getCommonFilms(@RequestParam long userId, @RequestParam long friendId) {
+        log.info("GET /films/common?userId={}, friendId={} request", userId, friendId);
+        Collection<Film> films = filmService.getCommonFilms(userId, friendId);
+        log.info("GET /films/common?userId={}, friendId={} response", userId, friendId);
+        return films;
+    }
+
+    @GetMapping("/search")
+    public Collection<Film> search(@RequestParam(name = "query") String keyword,
+                                   @RequestParam(name = "by") String params) {
+        log.info("GET /films/search?query={}, by={} request", keyword, params);
+        Collection<Film> films = filmService.search(keyword, params);
+        log.info("GET /films/search?query={}, by={} response: {}", keyword, params, films.size());
         return films;
     }
 }

@@ -9,11 +9,12 @@ import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.exception.SaveDataException;
+import ru.yandex.practicum.filmorate.model.Event;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.repository.BaseJdbcRepository;
+import ru.yandex.practicum.filmorate.repository.feed.EventMapper;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -72,8 +73,7 @@ public class JdbcUserRepository extends BaseJdbcRepository<User> implements User
     @Override
     public Collection<User> getAll() {
         String sqlQuery = "SELECT * FROM USERS;";
-        List<User> users = jdbc.query(sqlQuery, mapper);
-        return users;
+        return jdbc.query(sqlQuery, mapper);
     }
 
     @Override
@@ -92,36 +92,18 @@ public class JdbcUserRepository extends BaseJdbcRepository<User> implements User
     }
 
     @Override
-    public void addFriend(long userId, long friendId) {
-        String sqlQuery = """
-                INSERT INTO FRIENDSHIP (USER_ID, FRIEND_ID, IS_MUTUAL)
-                VALUES (:userId, :friendId, false);
-                """;
-        jdbc.update(sqlQuery, Map.of("userId", userId, "friendId", friendId));
-
-        boolean isExists = checkFriendship(userId, friendId);
-
-        if (isExists) {
-            String updateMutualQuery = """
-                    UPDATE FRIENDSHIP
-                    SET IS_MUTUAL = TRUE
-                    WHERE (USER_ID, FRIEND_ID) IN ((:userId, :friendId), (:friendId, :userId));
-                    """;
-            jdbc.update(updateMutualQuery, Map.of("userId", userId, "friendId", friendId));
-        }
+    public void delete(long userId) {
+        String deleteUserQuery = "DELETE FROM USERS WHERE USER_ID = :userId;";
+        jdbc.update(deleteUserQuery, Map.of("userId", userId));
     }
 
-    private Boolean checkFriendship(long userId, long friendId) {
-        String checkMutualQuery = """
-                SELECT EXISTS(
-                        SELECT 1
-                        FROM FRIENDSHIP
-                        WHERE USER_ID = :userId
-                        AND FRIEND_ID = :friendId);
+    @Override
+    public void addFriend(long userId, long friendId) {
+        String sqlQuery = """
+                INSERT INTO FRIENDSHIP (USER_ID, FRIEND_ID)
+                VALUES (:userId, :friendId);
                 """;
-        return jdbc.queryForObject(checkMutualQuery,
-                Map.of("userId", friendId, "friendId", userId),
-                Boolean.class);
+        jdbc.update(sqlQuery, Map.of("userId", userId, "friendId", friendId));
     }
 
     @Override
@@ -131,17 +113,7 @@ public class JdbcUserRepository extends BaseJdbcRepository<User> implements User
                 WHERE USER_ID = :userId
                 AND FRIEND_ID = :friendId;
                 """;
-        int countUpdateRow = jdbc.update(removeFriendship, Map.of("userId", userId, "friendId", friendId));
-
-        if (countUpdateRow != 0) {
-            String updateMutualQuery = """
-                    UPDATE FRIENDSHIP
-                    SET IS_MUTUAL = FALSE
-                    WHERE USER_ID = :userId
-                    AND FRIEND_ID = :friendId;
-                    """;
-            jdbc.update(updateMutualQuery, Map.of("userId", friendId, "friendId", userId));
-        }
+        jdbc.update(removeFriendship, Map.of("userId", userId, "friendId", friendId));
     }
 
     @Override
@@ -154,8 +126,7 @@ public class JdbcUserRepository extends BaseJdbcRepository<User> implements User
                         FROM FRIENDSHIP
                         WHERE USER_ID = :userId);
                 """;
-        List<User> friends = jdbc.query(sqlQuery, Map.of("userId", userId), mapper);
-        return friends;
+        return jdbc.query(sqlQuery, Map.of("userId", userId), mapper);
     }
 
     @Override
@@ -165,5 +136,15 @@ public class JdbcUserRepository extends BaseJdbcRepository<User> implements User
 
         userFriends.retainAll(friendFriends);
         return userFriends;
+    }
+
+    @Override
+    public Collection<Event> getFeed(long userId) {
+        String sqlQuery = """
+                SELECT *
+                FROM USER_EVENTS
+                WHERE USER_ID = :userId
+                """;
+        return jdbc.query(sqlQuery, Map.of("userId", userId), new EventMapper());
     }
 }

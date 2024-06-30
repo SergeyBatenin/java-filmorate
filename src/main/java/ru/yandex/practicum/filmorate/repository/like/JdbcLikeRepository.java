@@ -16,7 +16,11 @@ public class JdbcLikeRepository extends BaseJdbcRepository<Like> implements Like
 
     @Override
     public void like(long filmId, long userId) {
-        String query = "INSERT INTO LIKES (FILM_ID, USER_ID) VALUES (:filmId, :userId);";
+        String query = """
+                MERGE INTO LIKES (FILM_ID, USER_ID)
+                KEY (FILM_ID, USER_ID)
+                VALUES (:filmId, :userId);
+                """;
         jdbc.update(query, Map.of("filmId", filmId, "userId", userId));
     }
 

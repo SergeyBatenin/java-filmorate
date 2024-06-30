@@ -11,7 +11,9 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.model.Event;
 import ru.yandex.practicum.filmorate.service.UserService;
 
 import java.util.Collection;
@@ -28,8 +30,16 @@ public class UserController {
     public Collection<User> getAll() {
         log.info("GET /users request");
         Collection<User> users = userService.getAll();
-        log.info("GET /films response: {}", users.size());
+        log.info("GET /users response: {}", users.size());
         return users;
+    }
+
+    @GetMapping("/{userId}")
+    public User getById(@PathVariable Long userId) {
+        log.info("GET /users/{} by ID {} request", userId, userId);
+        User user = userService.getById(userId);
+        log.info("GET /users/{} response: success {}", userId, user);
+        return user;
     }
 
     @PostMapping
@@ -46,6 +56,13 @@ public class UserController {
         User updateUser = userService.update(user);
         log.info("PUT /users response: {}", updateUser);
         return updateUser;
+    }
+
+    @DeleteMapping("/{id}")
+    public void delete(@PathVariable long id) {
+        log.info("DELETE /users/{} request", id);
+        userService.delete(id);
+        log.info("DELETE /users/{} response: success", id);
     }
 
     @PutMapping("/{id}/friends/{friendId}")
@@ -76,5 +93,21 @@ public class UserController {
         Collection<User> commonFriends = userService.getCommonFriends(id, otherId);
         log.info("GET /users/{}/friends/common/{} response: {}", id, otherId, commonFriends);
         return commonFriends;
+    }
+
+    @GetMapping("/{userId}/recommendations")
+    public Collection<Film> getFilmRecommendations(@PathVariable long userId) {
+        log.info("GET /users/{}/recommendations request", userId);
+        Collection<Film> recommendedFilms = userService.getFilmRecommendations(userId);
+        log.info("GET /users/{}/recommendations response: {}", userId, recommendedFilms);
+        return recommendedFilms;
+    }
+
+    @GetMapping("/{userId}/feed")
+    public Collection<Event> getUserFeed(@PathVariable Long userId) {
+        log.info("GET /users/{}/feed request", userId);
+        Collection<Event> events = userService.getFeed(userId);
+        log.info("GET /users/{}/feed response: {}", userId, events);
+        return events;
     }
 }

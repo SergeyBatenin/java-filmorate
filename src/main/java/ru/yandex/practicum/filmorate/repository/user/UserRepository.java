@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.repository.user;
 
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.model.Event;
 
 import java.util.Collection;
 import java.util.Optional;
@@ -14,6 +15,8 @@ public interface UserRepository {
 
     Optional<User> getById(Long id);
 
+    void delete(long userId);
+
     void addFriend(long userId, long friendId);
 
     void deleteFriend(long userId, long friendId);
@@ -21,4 +24,7 @@ public interface UserRepository {
     Collection<User> getFriends(long userId);
 
     Collection<User> getCommonFriends(long userId, long otherId);
+
+
+    Collection<Event> getFeed(long userId);
 }
