@@ -21,8 +21,8 @@ public class ExceptionController {
                 .body(new ErrorMessage(exception.getMessage()));
     }
 
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ErrorMessage> handleMethodArgumentNotValid(MethodArgumentNotValidException exception) {
+    @ExceptionHandler({MethodArgumentNotValidException.class, IllegalArgumentException.class})
+    public ResponseEntity<ErrorMessage> handleMethodArgumentNotValid(Exception exception) {
         log.error("ERROR", exception);
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
