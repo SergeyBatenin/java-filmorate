@@ -138,7 +138,7 @@ public class FilmServiceImpl implements FilmService {
         mpaRepository.getById(mapId)
                 .orElseThrow(() -> {
                     log.debug("CHECK MpaFilm {}. Рейтинг с id={} не найден", film, mapId);
-                    return new NotFoundException("Рейтинг с id=" + mapId + " не существует");
+                    return new IllegalArgumentException("Рейтинг с id=" + mapId + " не существует");
                 });
     }
 
@@ -156,7 +156,7 @@ public class FilmServiceImpl implements FilmService {
 
         if (matchingGenresCount != genres.size()) {
             log.debug("CHECK FilmGenres {}. Обнаружен несуществующий жанр в списке {}", film, genres);
-            throw new NotFoundException("Фильм содержит несуществующий жанр");
+            throw new IllegalArgumentException("Фильм содержит несуществующий жанр");
         }
     }
 
@@ -173,7 +173,7 @@ public class FilmServiceImpl implements FilmService {
         int matchingDirectorsCount = directorRepository.countMatchingDirectors(directorIds);
         if (matchingDirectorsCount != directors.size()) {
             log.debug("CHECK FilmDirectors {}. Обнаружен несуществующий режиссер в списке {}", film, directors);
-            throw new NotFoundException("Фильм содержит не существующего режиссера");
+            throw new IllegalArgumentException("Фильм содержит не существующего режиссера");
         }
     }
 
