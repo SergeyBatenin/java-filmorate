@@ -53,8 +53,7 @@ public class JdbcReviewRepository extends BaseJdbcRepository<Review> implements 
     public Review update(Review review) {
         final String sql = """
                 UPDATE REVIEWS
-                SET
-                    CONTENT = :content,
+                SET CONTENT = :content,
                     IS_POSITIVE = :isPositive
                 WHERE REVIEW_ID = :reviewId;
                 """;
@@ -121,117 +120,67 @@ public class JdbcReviewRepository extends BaseJdbcRepository<Review> implements 
 
     @Override
     public void addLikeToReview(long id, long userId) {
-        final String sql = """
-                INSERT INTO REVIEW_LIKES (REVIEW_ID, USER_ID) VALUES (:reviewId, :userId);
-                UPDATE REVIEWS SET USEFUL = USEFUL + 1 WHERE REVIEW_ID = :reviewId;
-                """;
-
-        SqlParameterSource params = new MapSqlParameterSource()
-                .addValue("reviewId", id)
-                .addValue("userId", userId);
-
-        if (dislikeExists(id, userId)) {
-            deleteDislikeFromReview(id, userId);
-        }
-
-        jdbc.update(sql, params);
-        updateReviewUseful(id);
+        addRatingToReview(id, userId, 1);
     }
 
     @Override
     public void addDislikeToReview(long id, long userId) {
-        final String sql = """
-                INSERT INTO REVIEW_DISLIKES (REVIEW_ID, USER_ID) VALUES (:reviewId, :userId);
-                UPDATE REVIEWS SET USEFUL = USEFUL - 1 WHERE REVIEW_ID = :reviewId;
-                """;
-
-        SqlParameterSource params = new MapSqlParameterSource()
-                .addValue("reviewId", id)
-                .addValue("userId", userId);
-
-        if (likeExists(id, userId)) {
-            deleteLikeFromReview(id, userId);
-        }
-
-        jdbc.update(sql, params);
-        updateReviewUseful(id);
+        addRatingToReview(id, userId, -1);
     }
 
     @Override
     public void deleteLikeFromReview(long id, long userId) {
-        final String sql = """
-                DELETE FROM REVIEW_LIKES WHERE REVIEW_ID = :reviewId AND USER_ID = :userId;
-                UPDATE REVIEWS SET USEFUL = USEFUL - 1 WHERE REVIEW_ID = :reviewId;
-                """;
-
-        SqlParameterSource params = new MapSqlParameterSource()
-                .addValue("reviewId", id)
-                .addValue("userId", userId);
-        jdbc.update(sql, params);
-        updateReviewUseful(id);
+        deleteRatingFromReview(id, userId, 1);
     }
 
     @Override
     public void deleteDislikeFromReview(long id, long userId) {
+        deleteRatingFromReview(id, userId, -1);
+    }
+
+    private void addRatingToReview(long reviewId, long userId, int rating) {
         final String sql = """
-                DELETE FROM REVIEW_DISLIKES WHERE REVIEW_ID = :reviewId AND USER_ID = :userId;
-                UPDATE REVIEWS SET USEFUL = USEFUL + 1 WHERE REVIEW_ID = :reviewId;
+                MERGE INTO REVIEW_RATINGS (REVIEW_ID, USER_ID, RATING)
+                KEY (REVIEW_ID, USER_ID)
+                VALUES (:reviewId, :userId, :rating);
                 """;
 
         SqlParameterSource params = new MapSqlParameterSource()
-                .addValue("reviewId", id)
-                .addValue("userId", userId);
+                .addValue("reviewId", reviewId)
+                .addValue("userId", userId)
+                .addValue("rating", rating);
+
         jdbc.update(sql, params);
-        updateReviewUseful(id);
+        updateReviewUseful(reviewId);
     }
 
-    private boolean likeExists(Long reviewId, Long userId) {
+    private void deleteRatingFromReview(long reviewId, long userId, int rating) {
         final String sql = """
-                SELECT COUNT(*)
-                FROM REVIEW_LIKES
-                WHERE REVIEW_ID = :reviewId AND USER_ID = :userId;
+                DELETE FROM REVIEW_RATINGS
+                WHERE REVIEW_ID = :reviewId AND USER_ID = :userId AND RATING = :rating;
                 """;
 
         SqlParameterSource params = new MapSqlParameterSource()
                 .addValue("reviewId", reviewId)
-                .addValue("userId", userId);
-        Integer count = jdbc.queryForObject(sql, params, Integer.class);
-        return count != null && count > 0;
-    }
-
-    private boolean dislikeExists(Long reviewId, Long userId) {
-        final String sql = """
-                SELECT COUNT(*)
-                FROM REVIEW_DISLIKES
-                WHERE REVIEW_ID = :reviewId AND USER_ID = :userId;
-                """;
-
-        SqlParameterSource params = new MapSqlParameterSource()
-                .addValue("reviewId", reviewId)
-                .addValue("userId", userId);
-        Integer count = jdbc.queryForObject(sql, params, Integer.class);
-        return count != null && count > 0;
+                .addValue("userId", userId)
+                .addValue("rating", rating);
+        jdbc.update(sql, params);
+        updateReviewUseful(reviewId);
     }
 
     private void updateReviewUseful(Long reviewId) {
         SqlParameterSource params = new MapSqlParameterSource().addValue("reviewId", reviewId);
-        final String sqlGetLikeCount = "SELECT COUNT(*) FROM REVIEW_LIKES WHERE REVIEW_ID = :reviewId;";
-        Integer likeCount = jdbc.queryForObject(sqlGetLikeCount, params, Integer.class);
-        if (likeCount == null) {
-            likeCount = 0;
-        }
+        final String sqlGetUseful = """
+                SELECT COALESCE(SUM(RATING), 0)
+                FROM REVIEW_RATINGS
+                WHERE REVIEW_ID = :reviewId;
+                """;
 
-        final String sqlGetDislikeCount = "SELECT COUNT(*) FROM REVIEW_DISLIKES WHERE REVIEW_ID = :reviewId;";
-        Integer dislikeCount = jdbc.queryForObject(sqlGetDislikeCount, params, Integer.class);
-        if (dislikeCount == null) {
-            dislikeCount = 0;
-        }
-
-        int useful = likeCount - dislikeCount;
+        Integer useful = jdbc.queryForObject(sqlGetUseful, params, Integer.class);
 
         SqlParameterSource parameterSource = new MapSqlParameterSource()
                 .addValue("reviewId", reviewId)
-                .addValue("useful", useful);
+                .addValue("useful", useful != null ? useful : 0);
         jdbc.update("UPDATE REVIEWS SET USEFUL = :useful WHERE REVIEW_ID = :reviewId", parameterSource);
     }
 }

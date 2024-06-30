@@ -74,29 +74,29 @@ public class ReviewServiceImpl implements ReviewService {
 
     @Override
     public void addLikeToReview(Long reviewId, Long userId) {
-        checkReviewExist(reviewId, "ADD-LIKE");
-        checkUserExist(userId, "ADD-LIKE");
+        checkReviewExist(reviewId, "ADD-LIKE-REVIEW");
+        checkUserExist(userId, "ADD-LIKE-REVIEW");
         reviewRepository.addLikeToReview(reviewId, userId);
     }
 
     @Override
     public void addDislikeToReview(Long reviewId, Long userId) {
-        checkReviewExist(reviewId, "ADD-DISLIKE");
-        checkUserExist(userId, "ADD-DISLIKE");
+        checkReviewExist(reviewId, "ADD-DISLIKE-REVIEW");
+        checkUserExist(userId, "ADD-DISLIKE-REVIEW");
         reviewRepository.addDislikeToReview(reviewId, userId);
     }
 
     @Override
     public void deleteLikeFromReview(Long reviewId, Long userId) {
-        checkReviewExist(reviewId, "DELETE-LIKE");
-        checkUserExist(userId, "DELETE-LIKE");
+        checkReviewExist(reviewId, "DELETE-LIKE-REVIEW");
+        checkUserExist(userId, "DELETE-LIKE-REVIEW");
         reviewRepository.deleteLikeFromReview(reviewId, userId);
     }
 
     @Override
     public void deleteDislikeFromReview(Long reviewId, Long userId) {
-        checkReviewExist(reviewId, "DELETE-DISLIKE");
-        checkUserExist(userId, "DELETE-DISLIKE");
+        checkReviewExist(reviewId, "DELETE-DISLIKE-REVIEW");
+        checkUserExist(userId, "DELETE-DISLIKE-REVIEW");
         reviewRepository.deleteDislikeFromReview(reviewId, userId);
     }
 

@@ -6,10 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import ru.yandex.practicum.filmorate.exception.DirectorNotExistsException;
 import ru.yandex.practicum.filmorate.exception.ErrorMessage;
-import ru.yandex.practicum.filmorate.exception.GenreNotExistsException;
-import ru.yandex.practicum.filmorate.exception.MpaNotExistsException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.SaveDataException;
 
@@ -24,32 +21,8 @@ public class ExceptionController {
                 .body(new ErrorMessage(exception.getMessage()));
     }
 
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ErrorMessage> handleMethodArgumentNotValid(MethodArgumentNotValidException exception) {
-        log.error("ERROR", exception);
-        return ResponseEntity
-                .status(HttpStatus.BAD_REQUEST)
-                .body(new ErrorMessage(exception.getMessage()));
-    }
-
-    @ExceptionHandler(MpaNotExistsException.class)
-    public ResponseEntity<ErrorMessage> handleMpaNotExists(MpaNotExistsException exception) {
-        log.error("ERROR", exception);
-        return ResponseEntity
-                .status(HttpStatus.BAD_REQUEST)
-                .body(new ErrorMessage(exception.getMessage()));
-    }
-
-    @ExceptionHandler(GenreNotExistsException.class)
-    public ResponseEntity<ErrorMessage> handleGenreNotExists(GenreNotExistsException exception) {
-        log.error("ERROR", exception);
-        return ResponseEntity
-                .status(HttpStatus.BAD_REQUEST)
-                .body(new ErrorMessage(exception.getMessage()));
-    }
-
-    @ExceptionHandler(DirectorNotExistsException.class)
-    public ResponseEntity<ErrorMessage> handleDirectorNotExists(DirectorNotExistsException exception) {
+    @ExceptionHandler({MethodArgumentNotValidException.class, IllegalArgumentException.class})
+    public ResponseEntity<ErrorMessage> handleMethodArgumentNotValid(Exception exception) {
         log.error("ERROR", exception);
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)

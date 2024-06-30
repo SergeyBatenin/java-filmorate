@@ -110,5 +110,4 @@ public class UserController {
         log.info("GET /users/{}/feed response: {}", userId, events);
         return events;
     }
-
 }

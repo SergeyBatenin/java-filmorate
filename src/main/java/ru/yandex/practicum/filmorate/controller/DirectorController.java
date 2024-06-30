@@ -20,7 +20,6 @@ import java.util.Collection;
 
 @RestController
 @RequestMapping("/directors")
-@Validated
 @RequiredArgsConstructor
 @Slf4j
 public class DirectorController {
