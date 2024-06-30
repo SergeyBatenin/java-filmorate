@@ -19,7 +19,6 @@ import java.util.Collection;
 
 @RestController
 @RequestMapping("/reviews")
-@Validated
 @RequiredArgsConstructor
 @Slf4j
 public class ReviewController {
@@ -59,7 +58,7 @@ public class ReviewController {
     @GetMapping
     public Collection<Review> getReviews(
             @RequestParam(required = false) Long filmId,
-            @RequestParam(required = false, defaultValue = "10") int count) {
+            @RequestParam(defaultValue = "10") int count) {
         log.info("GET /reviews?filmId={}, count={} request", filmId, count);
         Collection<Review> reviews = reviewService.getReviews(filmId, count);
         log.info("GET /reviews?filmId={}, count={} response: {}", filmId, count, reviews.size());

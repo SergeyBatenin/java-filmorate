@@ -66,7 +66,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public void deleteFriend(long userId, long friendId) {
         checkUserExistence(userId, "DELETE-FRIEND-USER");
-        checkUserExistence(friendId, "DElETE-FRIEND-FRIEND");
+        checkUserExistence(friendId, "DELETE-FRIEND-FRIEND");
         repository.deleteFriend(userId, friendId);
         feedRepository.saveEvent(userId, Operation.REMOVE, EventType.FRIEND, friendId);
     }

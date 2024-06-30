@@ -100,21 +100,10 @@ public class JdbcUserRepository extends BaseJdbcRepository<User> implements User
     @Override
     public void addFriend(long userId, long friendId) {
         String sqlQuery = """
-                INSERT INTO FRIENDSHIP (USER_ID, FRIEND_ID, IS_MUTUAL)
-                VALUES (:userId, :friendId, false);
+                INSERT INTO FRIENDSHIP (USER_ID, FRIEND_ID)
+                VALUES (:userId, :friendId);
                 """;
         jdbc.update(sqlQuery, Map.of("userId", userId, "friendId", friendId));
-
-        boolean isExists = checkFriendship(userId, friendId);
-
-        if (isExists) {
-            String updateMutualQuery = """
-                    UPDATE FRIENDSHIP
-                    SET IS_MUTUAL = TRUE
-                    WHERE (USER_ID, FRIEND_ID) IN ((:userId, :friendId), (:friendId, :userId));
-                    """;
-            jdbc.update(updateMutualQuery, Map.of("userId", userId, "friendId", friendId));
-        }
     }
 
     @Override
@@ -124,17 +113,7 @@ public class JdbcUserRepository extends BaseJdbcRepository<User> implements User
                 WHERE USER_ID = :userId
                 AND FRIEND_ID = :friendId;
                 """;
-        int countUpdateRow = jdbc.update(removeFriendship, Map.of("userId", userId, "friendId", friendId));
-
-        if (countUpdateRow != 0) {
-            String updateMutualQuery = """
-                    UPDATE FRIENDSHIP
-                    SET IS_MUTUAL = FALSE
-                    WHERE USER_ID = :userId
-                    AND FRIEND_ID = :friendId;
-                    """;
-            jdbc.update(updateMutualQuery, Map.of("userId", friendId, "friendId", userId));
-        }
+        jdbc.update(removeFriendship, Map.of("userId", userId, "friendId", friendId));
     }
 
     @Override
@@ -167,19 +146,5 @@ public class JdbcUserRepository extends BaseJdbcRepository<User> implements User
                 WHERE USER_ID = :userId
                 """;
         return jdbc.query(sqlQuery, Map.of("userId", userId), new EventMapper());
-    }
-
-
-    private Boolean checkFriendship(long userId, long friendId) {
-        String checkMutualQuery = """
-                SELECT EXISTS(
-                        SELECT 1
-                        FROM FRIENDSHIP
-                        WHERE USER_ID = :userId
-                        AND FRIEND_ID = :friendId);
-                """;
-        return jdbc.queryForObject(checkMutualQuery,
-                Map.of("userId", friendId, "friendId", userId),
-                Boolean.class);
     }
 }

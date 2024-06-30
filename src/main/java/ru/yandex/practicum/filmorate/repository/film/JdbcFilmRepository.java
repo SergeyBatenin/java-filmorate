@@ -513,7 +513,7 @@ public class JdbcFilmRepository extends BaseJdbcRepository<Film> implements Film
     public Collection<Film> getFilmRecommendations(long userId) {
         String sqlQuery = """
                 SELECT f.*,
-                    m.NAME as MPA_NAME,
+                    m.NAME as MPA_NAME
                 FROM FILMS f
                 JOIN LIKES l ON f.FILM_ID = l.FILM_ID
                 LEFT JOIN MPA m ON m.MPA_ID = f.MPA_ID

@@ -12,6 +12,7 @@ import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.repository.BaseJdbcRepository;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -76,5 +77,13 @@ public class JdbcDirectorRepository extends BaseJdbcRepository<Director> impleme
         String deleteQuery = "DELETE FROM DIRECTORS WHERE DIRECTOR_ID = :directorId";
 
         jdbc.update(deleteQuery, Map.of("directorId", directorId));
+    }
+
+    @Override
+    public int countMatchingDirectors(List<Integer> directorIds) {
+        String sqlQuery = "SELECT COUNT(*) FROM DIRECTORS WHERE DIRECTOR_ID IN (:directorIds)";
+        MapSqlParameterSource params = new MapSqlParameterSource();
+        params.addValue("directorIds", directorIds);
+        return jdbc.queryForObject(sqlQuery, params, Integer.class);
     }
 }
