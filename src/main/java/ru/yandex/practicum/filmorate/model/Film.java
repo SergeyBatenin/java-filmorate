@@ -19,6 +19,7 @@ import java.util.LinkedHashSet;
 public class Film {
     private Long id;
     @NotBlank
+    @Size(max = 255)
     private String name;
     @NotBlank
     @Size(max = 200)
@@ -29,5 +30,6 @@ public class Film {
     private int duration;
     @NotNull
     private Mpa mpa;
-    LinkedHashSet<Genre> genres;
+    private LinkedHashSet<Genre> genres;
+    private LinkedHashSet<Director> directors;
 }
